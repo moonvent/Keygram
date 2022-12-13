@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "desktop-telegram"
+version = "0.0.1"
+description = "My desktop telegram client, which have compability with vim commands and work in terminal, for ⚡️⚡️⚡️BLA$$ING F@ST ⚡️⚡️⚡️ experience :)"
+authors = ["moonvent <terraboneystone@proton.me>"]
+license = "The MIT License (MIT)"
+readme = "README.md"
+packages = [{include = "desktop_telegram"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+debugpy = "^1.6.4"
+rich = "^12.6.0"
+telethon = "^1.26.0"
+python-dotenv = "^0.21.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
