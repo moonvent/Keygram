@@ -5,11 +5,15 @@ from src.telegram_client.backend.dialogs.download_avatars import download_avatar
 
 
 
-async def get_dialogs(offset: int = 0):
+async def get_dialogs(dialogs_list: list, offset: int = 0):
     """
         Get dialogs with amount DIALOGS_LOAD_LIMIT and offset
+        :param dialogs_list: list of dialogs for gui
+        :param offset: offset for getting new dialogs
     """
     dialogs = await client.get_dialogs(limit=DIALOGS_LOAD_LIMIT,
                                        offset_id=offset)
     await download_avatars(dialogs=dialogs)
-    return dialogs
+
+    dialogs_list += dialogs
+

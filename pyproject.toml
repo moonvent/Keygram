@@ -8,11 +8,11 @@ readme = "README.md"
 packages = [{include = "desktop_telegram"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "3.10"
 debugpy = "^1.6.4"
-rich = "^12.6.0"
 telethon = "^1.26.0"
 python-dotenv = "^0.21.0"
+pyside6 = "^6.4.1"
 
 
 [build-system]
