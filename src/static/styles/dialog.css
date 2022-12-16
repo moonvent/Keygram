@@ -1,0 +1,17 @@
+#dialog {
+  border-width: 1px; 
+  border-style: solid; 
+  border-color: black; 
+  border-top-style: none;
+  border-left-style: none;
+}
+
+
+#dialog_title {
+  border-width: 1px; 
+  border-style: solid; 
+  border-color: black; 
+  border-top-style: none;
+  border-right-style: none;
+  border-left-style: none;
+}

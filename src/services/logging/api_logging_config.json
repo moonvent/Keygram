@@ -1,0 +1,8 @@
+{
+  "logger": {
+    "path": "logs",
+    "filename": "api.log",
+    "level": "debug",
+    "format": "<level>{level} |</level> <green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <cyan>{name}</cyan>:<cyan>{function}</cyan> - <level>{message}</level>"
+  }
+}

@@ -4,7 +4,7 @@ from src.telegram_client.frontend.gui import start_gui
 
 
 async def main():
-    await get_dialogs()
+    await get_dialogs([])
 
 
 if __name__ == "__main__":

@@ -17,15 +17,17 @@ class DialogList(_CoreWidget):
     def set_layout(self):
         self.widget_layout = QVBoxLayout(self)
         self.setLayout(self.widget_layout)
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(0)
 
     def load_ui(self):
         self.set_layout()
         self.load_dialogs_in_ui()
 
     def load_dialogs_in_ui(self):
+        # self.setStyleSheet('background-color: green')
         self.load_dialogs_from_telegram()
         self.handle_dialogs()
-        a = 1
 
     def load_dialogs_from_telegram(self):
         """
@@ -35,6 +37,7 @@ class DialogList(_CoreWidget):
         loop.run_until_complete(get_dialogs(dialogs_list=self.telethon_dialogs))
 
     def handle_dialogs(self):
+        # self.setStyleSheet('background-color: green')
         for tt_dialog in self.telethon_dialogs:
             gui_dialog = Dialog(self, tt_dialog)
             self.gui_dialogs.append(gui_dialog)

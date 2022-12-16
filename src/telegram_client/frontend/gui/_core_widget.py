@@ -1,7 +1,7 @@
-from PySide6.QtWidgets import QLayout, QWidget
+from PySide6.QtWidgets import QFrame, QLayout, QWidget
 
 
-class _CoreWidget(QWidget):
+class _CoreWidget(QFrame):
     """
         Core widget, with need methods which need be override
     """
@@ -22,4 +22,14 @@ class _CoreWidget(QWidget):
             Setup the widget layout
         """
         return NotImplemented
+
+    def set_fixed_size(self, 
+                       width: int, 
+                       height: int):
+        """
+            Setup widget sizes
+        """
+        self.setFixedWidth(width)
+        self.setFixedHeight(height)
+
      

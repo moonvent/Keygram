@@ -24,3 +24,21 @@ msgstr "🔈"
 #: src/telegram_client/frontend/gui/widgets/dialogs/dialog_title.py:64
 msgid "muted"
 msgstr "🔇"
+
+msgid "pinned"
+msgstr "📌"
+
+msgid "not pinned"
+msgstr " "
+
+msgid "bot"
+msgstr "🤖"
+
+msgid "user"
+msgstr "👤"
+
+msgid "channel"
+msgstr "📰"
+
+msgid "group"
+msgstr "🫂"

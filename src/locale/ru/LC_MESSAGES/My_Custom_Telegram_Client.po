@@ -25,3 +25,43 @@ msgstr "🔈"
 #: src/telegram_client/frontend/gui/widgets/dialogs/dialog_title.py:64
 msgid "muted"
 msgstr "🔇"
+
+msgid "pinned"
+msgstr "📌"
+
+msgid "not pinned"
+msgstr " "
+
+msgid "bot"
+msgstr "🤖"
+
+msgid "user"
+msgstr "👤"
+
+msgid "channel"
+msgstr "📰"
+
+msgid "group"
+msgstr "🫂"
+
+msgid "Mon"
+msgstr "Пн"
+
+msgid "Tue"
+msgstr "Вт"
+
+msgid "Wed"
+msgstr "Ср"
+
+msgid "Thu"
+msgstr "Чт"
+
+msgid "Fri"
+msgstr "Пт"
+
+msgid "Sat"
+msgstr "Сб"
+
+msgid "Sun"
+msgstr "Вс"
+

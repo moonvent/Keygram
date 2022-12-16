@@ -1,7 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+from PySide6 import QtCore
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from telethon.tl.custom import dialog
 from telethon.tl.custom.dialog import Dialog as TTDialog
+from src.services.frontend.gui.widgets.dialogs.dialog_cut import cut_text_for_dialogs
+from src.config import AMOUNT_SYMBOLS_FOR_CUTTING_MESSAGE_TEXT, AMOUNT_SYMBOLS_FOR_CUTTING_TITLE, LENGTH_TITLE
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.services.load_internalization import _
 
@@ -30,48 +33,118 @@ class DialogTitle(_CoreWidget):
     def set_layout(self):
         self.widget_layout = QHBoxLayout(self)
         self.setLayout(self.widget_layout)
+        self.layout().setContentsMargins(0, 0, 0, 0)
 
     def load_ui(self):
         self.set_layout()
+        self.setObjectName('dialog_title')
 
-        self.add_pinned_status()
         self.add_dialog_type()
         self.add_title()
         self.add_muted()
         self.add_amount_unread()
         self.add_seen_status()
         self.add_last_active_time()
+        self.add_pinned_status()
 
     def add_pinned_status(self):
-        # self.pinned_status = QLabel(self)
-        # text = if self.dialog.pinned else 
-        # self.pinned_status.setText()
-        pass
+        self.pinned_status = QLabel(self)
+        if self.dialog.pinned:
+            self.pinned_status.setText(_('pinned'))
+            self.pinned_status.setFixedWidth(20)
+            self.layout().addWidget(self.pinned_status)
+            # self.pinned_status.setStyleSheet('background-color: green')
 
     def add_dialog_type(self):
-        pass
+        self.dialog_type = QLabel(self)
+
+        if self.dialog.is_user:
+            text_code = 'user'
+
+        elif self.dialog.is_group:
+            text_code = 'group'
+
+        elif self.dialog.is_channel:
+            text_code = 'channel'
+
+        else:
+            text_code = 'bot'
+
+        self.dialog_type.setText(_(text_code))
+        self.dialog_type.setFixedWidth(20)
+
+        self.layout().addWidget(self.dialog_type)
 
     def add_title(self):
-        pass
+        self.title = QLabel(self)
+        
+        title = cut_text_for_dialogs(text=self.dialog.title, 
+                                     max_length=AMOUNT_SYMBOLS_FOR_CUTTING_TITLE)
+        
+        self.title.setText(title)
+        self.title.setFixedWidth(LENGTH_TITLE)
+        self.layout().addWidget(self.title)
 
     def add_muted(self):
         self.muted = QLabel(self)
         mute_date = self.dialog.dialog.notify_settings.mute_until
 
         if not mute_date or mute_date.replace(tzinfo=None) < datetime.now().replace(tzinfo=None):
-            text = _('not muted')
+            text_code = 'not muted'
         else:
-            text = _('muted')
+            text_code = 'muted'
 
-        self.muted.setText(text)
+        self.muted.setText(_(text_code))
+        self.muted.setFixedWidth(20)
+
         self.layout().addWidget(self.muted)
 
     def add_amount_unread(self):
-        pass
+        self.amount_unreads = QLabel(self)
+
+        if self.dialog.dialog.unread_mark:
+            ...
+
+        elif self.dialog.unread_count:
+            self.amount_unreads.setText(str(self.dialog.unread_count))
+
+        else:
+            ...
+            
+        self.amount_unreads.setStyleSheet('background-color: lightblue;'
+                                          'border-radius: 10px;'
+                                          'color: black;'
+                                          'font-size: 15px;'
+                                          )
+        self.amount_unreads.setAlignment(QtCore.Qt.AlignCenter)
+        self.amount_unreads.setFixedWidth(20)
+        self.amount_unreads.setFixedHeight(20)
+        self.layout().addWidget(self.amount_unreads)
 
     def add_seen_status(self):
+        # self.seen_status = QLabel(self)
+        # self.seen_status.setText(self.dialog.title)
+        # self.layout().addWidget(self.seen_status)
         pass
 
     def add_last_active_time(self):
-        pass
+        message_date = self.dialog.date.date()
+
+        now = datetime.now()
+        today_date = datetime.today().date()
+
+        if message_date == today_date:
+            text = self.dialog.date.strftime('%H:%M')
+
+        else:
+
+            if timedelta(days=1) <= (today_date - message_date) <= timedelta(days=7):
+                text = _(message_date.strftime('%a'))
+            else:
+                text = message_date.strftime('%d.%m.%y')
+
+        self.last_active_time = QLabel(self)
+        self.last_active_time.setText(text)
+        # self.amount_unreads.setFixedWidth(20)
+        self.layout().addWidget(self.last_active_time)
 
