@@ -1,6 +1,6 @@
 from telethon.hints import TotalList
 from src.telegram_client.backend.client_init import client
-from src.telegram_client.backend.config import DIALOGS_LOAD_LIMIT
+from src.config import DIALOGS_LOAD_LIMIT
 from src.telegram_client.backend.dialogs.download_avatars import download_avatars
 
 

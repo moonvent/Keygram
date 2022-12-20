@@ -42,3 +42,22 @@ msgstr "📰"
 
 msgid "group"
 msgstr "🫂"
+
+msgid "video_message"
+msgstr "📹 Video Message"
+
+msgid "voice_message"
+msgstr "📣 Voice message"
+
+msgid "video"
+msgstr "📹 Video"
+
+msgid "photo"
+msgstr "🖼 Photo"
+
+msgid "message_with_group_attachments"
+msgstr "📑 Message with group attachments"
+
+msgid "unknown_message_type"
+msgstr "⁉️  Unknown message type"
+

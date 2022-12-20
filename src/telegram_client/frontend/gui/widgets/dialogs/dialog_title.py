@@ -102,24 +102,16 @@ class DialogTitle(_CoreWidget):
     def add_amount_unread(self):
         self.amount_unreads = QLabel(self)
 
-        if self.dialog.dialog.unread_mark:
-            ...
+        if self.dialog.dialog.unread_mark or self.dialog.unread_count:
 
-        elif self.dialog.unread_count:
-            self.amount_unreads.setText(str(self.dialog.unread_count))
+            self.amount_unreads.setObjectName('dialog_unread')
+            if self.dialog.unread_count:
+                self.amount_unreads.setText(str(self.dialog.unread_count))
 
-        else:
-            ...
-            
-        self.amount_unreads.setStyleSheet('background-color: lightblue;'
-                                          'border-radius: 10px;'
-                                          'color: black;'
-                                          'font-size: 15px;'
-                                          )
-        self.amount_unreads.setAlignment(QtCore.Qt.AlignCenter)
-        self.amount_unreads.setFixedWidth(20)
-        self.amount_unreads.setFixedHeight(20)
-        self.layout().addWidget(self.amount_unreads)
+            self.amount_unreads.setAlignment(QtCore.Qt.AlignCenter)
+            self.amount_unreads.setFixedWidth(20)
+            self.amount_unreads.setFixedHeight(20)
+            self.layout().addWidget(self.amount_unreads)
 
     def add_seen_status(self):
         # self.seen_status = QLabel(self)

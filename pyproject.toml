@@ -5,7 +5,9 @@ description = "My desktop telegram client, which have compability with vim comma
 authors = ["moonvent <terraboneystone@proton.me>"]
 license = "The MIT License (MIT)"
 readme = "README.md"
-packages = [{include = "desktop_telegram"}]
+packages = [{include = "../desktop_telegram"}]
+repository = "https://github.com/moonvent/Keygram"
+keywords = ["telegram", "vim", "poetry", "python", "telethon", "pyside6"]
 
 [tool.poetry.dependencies]
 python = "3.10"
@@ -14,8 +16,15 @@ telethon = "^1.26.0"
 python-dotenv = "^0.21.0"
 pyside6 = "^6.4.1"
 loguru = "^0.6.0"
+sqlalchemy = "^1.4.45"
+alembic = "^1.9.0"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry.scripts]
+update_langs = "src.services.terminal_scripts:update_langs"
+

@@ -4,7 +4,7 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from telethon.tl.custom import dialog
 from telethon.tl.custom.dialog import Dialog as TTDialog
-from src.config import AVATAR_HEIGHT_IN_DIALOG, AVATAR_WEIGHT_IN_DIALOG, AVATARS_FOLDER_PATH, DIALOG_WIDGET_HEIGHT, DIALOG_WIDGET_WIDTH, MAIN_WIDGET_HEIGHT, MAIN_WIDGET_WIDTH
+from src.config import ACTIVE_DIALOG_NAME, AVATAR_HEIGHT_IN_DIALOG, AVATAR_WEIGHT_IN_DIALOG, AVATARS_FOLDER_PATH, DIALOG_NAME, DIALOG_WIDGET_HEIGHT, DIALOG_WIDGET_WIDTH, MAIN_WIDGET_HEIGHT, MAIN_WIDGET_WIDTH
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.services.load_internalization import _
 from src.telegram_client.frontend.gui.widgets.dialogs.dialog_text import DialogText
@@ -21,10 +21,14 @@ class Dialog(_CoreWidget):
     dialog_text: DialogText = None
     dialog_avatar: QLabel = None
 
+    active_dialog: bool = False
+
     def __init__(self, 
                  parent, 
-                 dialog: TTDialog) -> None:
+                 dialog: TTDialog,
+                 current_dialog_status: bool = False) -> None:
         self.dialog = dialog
+        self.active_dialog = current_dialog_status
         super().__init__(parent)
     
     def set_layout(self):
@@ -36,7 +40,7 @@ class Dialog(_CoreWidget):
     def load_ui(self):
         self.set_layout()
         # self.setStyleSheet('background-color: green')
-        self.setObjectName('dialog')
+        self.setObjectName(DIALOG_NAME if not self.active_dialog else ACTIVE_DIALOG_NAME)
         self.set_fixed_size(DIALOG_WIDGET_WIDTH, 
                             DIALOG_WIDGET_HEIGHT)
         self.add_dialog_widgets()
@@ -65,6 +69,6 @@ class Dialog(_CoreWidget):
 
     def add_dialog_text(self):
         self.dialog_text = DialogText(self, 
-                                      text=self.dialog.message.text)
+                                      dialog=self.dialog)
         self.inner_layout.addWidget(self.dialog_text)
 

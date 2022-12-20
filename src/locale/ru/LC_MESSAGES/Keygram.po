@@ -65,3 +65,20 @@ msgstr "Сб"
 msgid "Sun"
 msgstr "Вс"
 
+msgid "video_message"
+msgstr "📹 Видео сообщение"
+
+msgid "voice_message"
+msgstr "📣 Голосовое сообщение"
+
+msgid "photo"
+msgstr "🖼 Фото"
+ 
+msgid "video"
+msgstr "📹 Видео"
+
+msgid "message_with_group_attachments"
+msgstr "📑 Сообщение с групповым вложением"
+
+msgid "unknown_message_type"
+msgstr "⁉️  Неизвестный тип сообщения"

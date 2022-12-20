@@ -1,3 +1,5 @@
+
+
 #dialog {
   border-width: 1px; 
   border-style: solid; 
@@ -14,4 +16,26 @@
   border-top-style: none;
   border-right-style: none;
   border-left-style: none;
+}
+
+
+#dialog_text {
+}
+
+
+#dialog_unread {
+  background-color: lightblue;
+  border-radius: 10px;
+  color: black;
+  font-size: 15px;
+}
+
+
+#dialog_active {
+  border-width: 1px; 
+  border-style: solid; 
+  border-color: black; 
+  border-top-style: none;
+  border-left-style: none;
+  background-color: darkgreen;
 }
