@@ -86,3 +86,15 @@ DIALOG_SCROLL_WIDTH = 16
 
 DIALOG_NAME = 'dialog'
 ACTIVE_DIALOG_NAME = 'dialog_active'
+
+"""
+    Work with db
+"""
+
+DB_NAME = 'sqlite:///db.db'
+
+KEYMAPS_TABLE = 'keymaps'
+GLOBAL_DATA_TABLE = 'global_data'
+KEYBINDS_TABLE = 'keybinds'
+
+# All keymaps consts exists in src/database/keymaps.py

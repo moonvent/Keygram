@@ -4,6 +4,8 @@ from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QScrollArea
 from PySide6.QtCore import Qt
 from telethon.tl.custom.dialog import Dialog as TTDialog
+from src.database.keymaps import Keymaps
+from src.services.database.models.keymaps import get_keybinds
 from src.config import ACTIVE_DIALOG_NAME, DIALOG_NAME, MAIN_WIDGET_HEIGHT, DIALOG_SCROLL_WIDTH, DIALOG_WIDGET_WIDTH
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget, _KeyboardShortcuts
 from src.telegram_client.backend.dialogs.dialogs import get_dialogs
@@ -30,7 +32,6 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
         self.set_keyboard_shortcuts()
 
     def load_dialogs_in_ui(self):
-        # self.setStyleSheet('background-color: green')
         self.load_dialogs_from_telegram()
         self.handle_dialogs()
 
@@ -55,11 +56,11 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
             self.layout().addWidget(gui_dialog)
 
     def set_keyboard_shortcuts(self):
-        shortcut_down = QShortcut(QKeySequence('j'), self)
-        shortcut_down.activated.connect(self.activate_chat_below)
+        self.set_keybind_handlers(keybind_title=Keymaps.DOWN_IN_DIALOGS_LIST,
+                                  method=self.activate_chat_below)
 
-        shortcut_down = QShortcut(QKeySequence('k'), self)
-        shortcut_down.activated.connect(self.activate_chat_above)
+        self.set_keybind_handlers(keybind_title=Keymaps.UP_IN_DIALOGS_LIST,
+                                  method=self.activate_chat_above)
 
     def activate_chat_above(self):
         self.active_dialog.setObjectName(DIALOG_NAME)
@@ -71,7 +72,10 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
     def activate_chat_below(self):
         self.active_dialog.setObjectName(DIALOG_NAME)
         active_dialog_index = self.gui_dialogs.index(self.active_dialog)
-        self.active_dialog = self.gui_dialogs[active_dialog_index + 1]
+        if active_dialog_index == len(self.gui_dialogs) - 1:
+            self.active_dialog = self.gui_dialogs[0]
+        else:
+            self.active_dialog = self.gui_dialogs[active_dialog_index + 1]
         self.active_dialog.setObjectName(ACTIVE_DIALOG_NAME)
         self.load_styles()
 

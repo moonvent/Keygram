@@ -7,6 +7,7 @@
 2. [Instruction](#instruction)
 - [Setup dev environment](#setup_dev_environment)
 - [Setup new language](#setup_new_language)
+- [Add new db migration](#add_new_migration)
 
 <a name='about'/>
 
@@ -47,3 +48,16 @@ Or you can run this command, if you install poetry
   poetry run update_langs
 ```
 
+<a name='add_new_migration'/>
+
+### Add new db migration
+
+1. Project use ```sqlalchemy```, and ```alembic``` for work with migrations;
+2. For create a new migratione entry in terminal and change directory to ```src/```;
+3. Write command ```alembic revision -m "What you do in this revision message"``` and execute it;
+4. After that, alembic create a file in ```src/alembic/versions/``` with end of your revision message, enter it;
+5. In this file you have a two method, upgrade and downgrade, add in upgrade what you need, and in downgrade what you need if you want downgrade in future;
+6. Leave from file and write a command ```alembic upgrade head```.
+7. Excelent!
+
+More detail you found in [docs](https://alembic.sqlalchemy.org/en/latest/tutorial.html) to alembic

@@ -18,6 +18,7 @@ pyside6 = "^6.4.1"
 loguru = "^0.6.0"
 sqlalchemy = "^1.4.45"
 alembic = "^1.9.0"
+sqlalchemy-json = "^0.5.0"
 
 
 [build-system]
