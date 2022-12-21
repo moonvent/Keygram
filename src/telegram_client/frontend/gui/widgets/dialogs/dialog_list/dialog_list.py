@@ -28,10 +28,8 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
     vertical_scroll: QScrollBar = None
     user: User = None
 
-    dialog_index_list_for_scroll_up: list = None        # dialogs index which be ignored for scrolling
-    dialog_to_bottom_was_canceled: bool = False
-    index_to_continue_scroll_down: int = None      # dialogs index which be ignored for scrolling
-    index_to_continue_scroll_up: int = None      # dialogs index which be ignored for scrolling
+    index_to_continue_scroll_up: int = 1      # dialogs index which be ignored for scrolling
+    index_to_continue_scroll_down: int = 8      # dialogs index which be ignored for scrolling
 
     def __init__(self, parent, user) -> None:
         self.user = user
@@ -95,23 +93,10 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
         self.active_dialog.setObjectName(ACTIVE_DIALOG_NAME)
         self.load_styles()
 
-        # if not self.dialog_index_list_for_scroll_up and active_dialog_index > AMOUNT_DIALOGS_IN_HEIGHT:
-        if not self.index_to_continue_scroll_up and active_dialog_index > AMOUNT_DIALOGS_IN_HEIGHT:
-            self.dialog_to_bottom_was_canceled = True
-            # self.dialog_index_list_for_scroll_up = []
-
-            # for i in range(8 if active_dialog_index == (len(self.gui_dialogs) - 1) else 7):
-            #     self.dialog_index_list_for_scroll_up.append(active_dialog_index - i)
-            self.index_to_continue_scroll_up = active_dialog_index - 7
-
-            # self.index_to_continue_scroll_down = self.dialog_index_list_for_scroll_up[0]
-            self.index_to_continue_scroll_down = active_dialog_index
-            if self.index_to_continue_scroll_down == (len(self.gui_dialogs) - 1):
-                self.index_to_continue_scroll_down -= 1
-
-        else:
-            if active_dialog_index <= self.index_to_continue_scroll_up:
-                self.vertical_scroll.setValue(self.vertical_scroll.value() - DIALOG_WIDGET_HEIGHT)
+        if active_dialog_index <= self.index_to_continue_scroll_up:
+            self.vertical_scroll.setValue(self.vertical_scroll.value() - DIALOG_WIDGET_HEIGHT)
+            if active_dialog_index != 1:
+                self.index_to_continue_scroll_up -= 1
                 self.index_to_continue_scroll_down -= 1
 
 
@@ -135,16 +120,11 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
             self.active_dialog = self.gui_dialogs[active_dialog_index + 1]
 
         self.active_dialog.setObjectName(ACTIVE_DIALOG_NAME)
-        self.load_styles()
-
-        if self.dialog_to_bottom_was_canceled:
-            if active_dialog_index == self.index_to_continue_scroll_down:
-                self.dialog_to_bottom_was_canceled = False
-                self.dialog_index_list_for_scroll_up = None
-                self.index_to_continue_scroll_up += 2
-            else:
-                return
-        
-        if active_dialog_index > (AMOUNT_DIALOGS_IN_HEIGHT - AMOUNT_DIALOGS_BEFORE_SCROLLABLE_DIALOG):
+        self.load_styles()        
+         
+        if active_dialog_index >= self.index_to_continue_scroll_down:
             self.vertical_scroll.setValue(self.vertical_scroll.value() + DIALOG_WIDGET_HEIGHT)
+            if (len(self.gui_dialogs) - 2) != active_dialog_index:
+                self.index_to_continue_scroll_down += 1
+                self.index_to_continue_scroll_up += 1
 
