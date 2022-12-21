@@ -1,9 +1,15 @@
+"""
+    One dialog widget in qt
+"""
+
 from datetime import datetime
 import os
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from telethon.tl.custom import dialog
 from telethon.tl.custom.dialog import Dialog as TTDialog
+from telethon.tl.types import User
+from telethon.tl.types.messages import PeerDialogs
 from src.config import ACTIVE_DIALOG_NAME, AVATAR_HEIGHT_IN_DIALOG, AVATAR_WEIGHT_IN_DIALOG, AVATARS_FOLDER_PATH, DIALOG_NAME, DIALOG_WIDGET_HEIGHT, DIALOG_WIDGET_WIDTH, MAIN_WIDGET_HEIGHT, MAIN_WIDGET_WIDTH
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.services.load_internalization import _
@@ -16,6 +22,7 @@ class Dialog(_CoreWidget):
         Dialog widget, with one of users
     """
     dialog: TTDialog = None
+    user: User = None
 
     dialog_title: DialogTitle = None
     dialog_text: DialogText = None
@@ -26,9 +33,11 @@ class Dialog(_CoreWidget):
     def __init__(self, 
                  parent, 
                  dialog: TTDialog,
-                 current_dialog_status: bool = False) -> None:
+                 user: User,
+                 current_dialog_status: bool = False,) -> None:
         self.dialog = dialog
         self.active_dialog = current_dialog_status
+        self.user = user 
         super().__init__(parent)
     
     def set_layout(self):
@@ -64,7 +73,8 @@ class Dialog(_CoreWidget):
 
     def add_dialog_title(self):
         self.dialog_title = DialogTitle(self, 
-                                        dialog=self.dialog)
+                                        dialog=self.dialog,
+                                        user=self.user)
         self.inner_layout.addWidget(self.dialog_title)
 
     def add_dialog_text(self):

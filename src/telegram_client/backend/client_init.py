@@ -13,6 +13,17 @@ api_hash = os.environ['API_HASH']
 client = TelegramClient('session_name', api_id, api_hash)
 client.start()
 
+
+async def get_me():
+    """
+        Get user object, for future needs
+    """
+    return await client.get_me()
+
+
+# with client:
+#     client.run_until_disconnected()
+
 # client.send_message('moonvent', 'Hello! Talking to you from Telethon')
 
 #tclient.send_file('username', '/home/myself/Pictures/holidays.jpg')

@@ -1,12 +1,18 @@
+"""
+    Dectibe dialog list widget
+"""
+
+
 import asyncio
 from typing import List
 from PySide6.QtGui import QKeySequence, QShortcut
-from PySide6.QtWidgets import QVBoxLayout, QWidget, QScrollArea
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QScrollBar, QVBoxLayout, QWidget, QScrollArea
+from PySide6.QtCore import Qt 
 from telethon.tl.custom.dialog import Dialog as TTDialog
+from telethon.tl.types import User
 from src.database.keymaps import Keymaps
 from src.services.database.models.keymaps import get_keybinds
-from src.config import ACTIVE_DIALOG_NAME, DIALOG_NAME, MAIN_WIDGET_HEIGHT, DIALOG_SCROLL_WIDTH, DIALOG_WIDGET_WIDTH
+from src.config import ACTIVE_DIALOG_NAME, AMOUNT_DIALOGS_BEFORE_SCROLLABLE_DIALOG, AMOUNT_DIALOGS_IN_HEIGHT, DIALOG_NAME, DIALOG_WIDGET_HEIGHT, MAIN_WIDGET_HEIGHT, DIALOG_SCROLL_WIDTH, DIALOG_WIDGET_WIDTH
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget, _KeyboardShortcuts
 from src.telegram_client.backend.dialogs.dialogs import get_dialogs
 from src.telegram_client.frontend.gui.widgets.dialogs.dialog import Dialog
@@ -19,6 +25,17 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
     telethon_dialogs: List[TTDialog] = []
     gui_dialogs: List[Dialog] = []
     active_dialog: Dialog = None
+    vertical_scroll: QScrollBar = None
+    user: User = None
+
+    dialog_index_list_for_scroll_up: list = None        # dialogs index which be ignored for scrolling
+    dialog_to_bottom_was_canceled: bool = False
+    index_to_continue_scroll_down: int = None      # dialogs index which be ignored for scrolling
+    index_to_continue_scroll_up: int = None      # dialogs index which be ignored for scrolling
+
+    def __init__(self, parent, user) -> None:
+        self.user = user
+        super().__init__(parent)
 
     def set_layout(self):
         self.widget_layout = QVBoxLayout(self)
@@ -46,7 +63,8 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
         for dialog_number, tt_dialog in enumerate(self.telethon_dialogs):
             gui_dialog = Dialog(self, 
                                 tt_dialog, 
-                                current_dialog_status=not dialog_number)
+                                current_dialog_status=not dialog_number,
+                                user=self.user)
 
             if gui_dialog.active_dialog:
                 self.active_dialog = gui_dialog
@@ -65,17 +83,68 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
     def activate_chat_above(self):
         self.active_dialog.setObjectName(DIALOG_NAME)
         active_dialog_index = self.gui_dialogs.index(self.active_dialog)
-        self.active_dialog = self.gui_dialogs[active_dialog_index - 1]
+
+        if active_dialog_index == 0:        # for infine scroll
+            return
+            # self.active_dialog = self.gui_dialogs[-1]
+            # self.vertical_scroll.setValue(self.vertical_scroll.maximum())
+
+        else:
+            self.active_dialog = self.gui_dialogs[active_dialog_index - 1]
+
         self.active_dialog.setObjectName(ACTIVE_DIALOG_NAME)
         self.load_styles()
 
+        # if not self.dialog_index_list_for_scroll_up and active_dialog_index > AMOUNT_DIALOGS_IN_HEIGHT:
+        if not self.index_to_continue_scroll_up and active_dialog_index > AMOUNT_DIALOGS_IN_HEIGHT:
+            self.dialog_to_bottom_was_canceled = True
+            # self.dialog_index_list_for_scroll_up = []
+
+            # for i in range(8 if active_dialog_index == (len(self.gui_dialogs) - 1) else 7):
+            #     self.dialog_index_list_for_scroll_up.append(active_dialog_index - i)
+            self.index_to_continue_scroll_up = active_dialog_index - 7
+
+            # self.index_to_continue_scroll_down = self.dialog_index_list_for_scroll_up[0]
+            self.index_to_continue_scroll_down = active_dialog_index
+            if self.index_to_continue_scroll_down == (len(self.gui_dialogs) - 1):
+                self.index_to_continue_scroll_down -= 1
+
+        else:
+            if active_dialog_index <= self.index_to_continue_scroll_up:
+                self.vertical_scroll.setValue(self.vertical_scroll.value() - DIALOG_WIDGET_HEIGHT)
+                self.index_to_continue_scroll_down -= 1
+
+
+        # if active_dialog_index > (AMOUNT_DIALOGS_IN_HEIGHT - AMOUNT_DIALOGS_BEFORE_SCROLLABLE_DIALOG):
+        #     self.vertical_scroll.setValue(self.vertical_scroll.value() - DIALOG_WIDGET_HEIGHT)
+        
     def activate_chat_below(self):
         self.active_dialog.setObjectName(DIALOG_NAME)
         active_dialog_index = self.gui_dialogs.index(self.active_dialog)
-        if active_dialog_index == len(self.gui_dialogs) - 1:
-            self.active_dialog = self.gui_dialogs[0]
+
+        if active_dialog_index == len(self.gui_dialogs) - 1:        # for infine scroll
+            return
+            # # in code about happend smth straight
+            # self.active_dialog = self.gui_dialogs[0]
+            # print('before', self.vertical_scroll.value())
+            # print('minimum', self.vertical_scroll.minimum())
+            # while self.vertical_scroll.value():
+                # self.vertical_scroll.setValue(self.vertical_scroll.value() - DIALOG_WIDGET_HEIGHT)
+            # print('after', self.vertical_scroll.value())
         else:
             self.active_dialog = self.gui_dialogs[active_dialog_index + 1]
+
         self.active_dialog.setObjectName(ACTIVE_DIALOG_NAME)
         self.load_styles()
+
+        if self.dialog_to_bottom_was_canceled:
+            if active_dialog_index == self.index_to_continue_scroll_down:
+                self.dialog_to_bottom_was_canceled = False
+                self.dialog_index_list_for_scroll_up = None
+                self.index_to_continue_scroll_up += 2
+            else:
+                return
+        
+        if active_dialog_index > (AMOUNT_DIALOGS_IN_HEIGHT - AMOUNT_DIALOGS_BEFORE_SCROLLABLE_DIALOG):
+            self.vertical_scroll.setValue(self.vertical_scroll.value() + DIALOG_WIDGET_HEIGHT)
 

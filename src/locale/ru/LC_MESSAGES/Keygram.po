@@ -82,3 +82,9 @@ msgstr "📑 Сообщение с групповым вложением"
 
 msgid "unknown_message_type"
 msgstr "⁉️  Неизвестный тип сообщения"
+
+msgid "seen_status"
+msgstr "🙉"
+
+msgid "unseen_status"
+msgstr "🙈"

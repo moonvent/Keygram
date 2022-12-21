@@ -1,8 +1,13 @@
+"""
+    Dialog title widget
+"""
+
 from datetime import datetime, timedelta
 from PySide6 import QtCore
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from telethon.tl.custom import dialog
 from telethon.tl.custom.dialog import Dialog as TTDialog
+from telethon.tl.types import User
 from src.services.frontend.gui.widgets.dialogs.dialog_cut import cut_text_for_dialogs
 from src.config import AMOUNT_SYMBOLS_FOR_CUTTING_MESSAGE_TEXT, AMOUNT_SYMBOLS_FOR_CUTTING_TITLE, LENGTH_TITLE
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
@@ -15,6 +20,7 @@ class DialogTitle(_CoreWidget):
             pinned, status (channel, bot, user), title, muted, [__], amount_unreads, seen_status, last active date
     """
     dialog: TTDialog = None
+    user: User = None
 
     pinned_status: QLabel = None
     dialog_type: QLabel = None
@@ -26,8 +32,11 @@ class DialogTitle(_CoreWidget):
 
     def __init__(self, 
                  parent, 
-                 dialog: TTDialog) -> None:
+                 dialog: TTDialog,
+                 user: User
+                 ) -> None:
         self.dialog = dialog
+        self.user = user
         super().__init__(parent)
 
     def set_layout(self):
@@ -114,10 +123,18 @@ class DialogTitle(_CoreWidget):
             self.layout().addWidget(self.amount_unreads)
 
     def add_seen_status(self):
-        # self.seen_status = QLabel(self)
-        # self.seen_status.setText(self.dialog.title)
-        # self.layout().addWidget(self.seen_status)
-        pass
+        if self.dialog.message.sender_id == self.user.id and self.user.id != self.dialog.id:
+            self.seen_status = QLabel(self)
+
+            if self.dialog.message.id <= self.dialog.dialog.read_outbox_max_id:
+                # if message read by recipient
+                text_code = 'seen_status'
+
+            else:
+                text_code = 'unseen_status'
+
+            self.seen_status.setText(_(text_code))
+            self.layout().addWidget(self.seen_status)
 
     def add_last_active_time(self):
         message_date = self.dialog.date.date()
