@@ -93,6 +93,14 @@ DIALOG_NAME = 'dialog'
 ACTIVE_DIALOG_NAME = 'dialog_active'
 
 """
+    Work with info menu
+"""
+
+INFO_MENU_AVATAR_SIZE = 70
+INFO_MENU_HEIGHT = DIALOG_WIDGET_HEIGHT
+
+
+"""
     Work with db
 """
 
@@ -103,3 +111,22 @@ GLOBAL_DATA_TABLE = 'global_data'
 KEYBINDS_TABLE = 'keybinds'
 
 # All keymaps consts exists in src/database/keymaps.py
+
+
+"""
+    Messanger info
+"""
+
+AMOUNT_MESSAGE_LIMIT = 30
+
+MESSAGE_NAME = 'message'
+
+MESSAGES_FONT_SIZE = 15
+
+FONT_NAME = 'Helvetica'
+
+"""
+    Input field
+"""
+
+INPUT_FIELD_HEIGHT = 60

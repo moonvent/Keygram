@@ -12,7 +12,8 @@ class _CoreWidget(QFrame):
     """
     widget_layout: QLayout = None
 
-    def __init__(self, parent) -> None:
+    def __init__(self, 
+                 parent) -> None:
         super().__init__(parent)
         self.load_ui()
 

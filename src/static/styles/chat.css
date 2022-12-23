@@ -1,0 +1,18 @@
+
+#info_menu {
+  background-color: #323232;
+}
+
+
+#messanger {
+  background-color: #1E1E1E;
+}
+
+
+#message {
+  background-color: lightblue;
+  border-radius: 5px;
+  color: black;
+  /* font-size: 15px; */
+  /* padding: 5px 0; */
+}
