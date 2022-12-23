@@ -16,3 +16,20 @@
   /* font-size: 15px; */
   /* padding: 5px 0; */
 }
+
+#info_menu__avatar {
+  /* margin-left: 10px */
+}
+
+
+#info_menu__title_label {
+  margin-top: 10px;
+  margin-left: 5px;
+  font-size: 15px;
+}
+
+#info_menu__online_status_label {
+  margin-bottom: 10px;
+  margin-left: 5px;
+  font-size: 15px;
+}

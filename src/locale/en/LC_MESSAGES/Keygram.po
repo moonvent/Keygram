@@ -66,3 +66,13 @@ msgstr "🙉"
 
 msgid "unseen_status"
 msgstr "🙈"
+
+msgid "last_online_status"
+msgstr "Was online in "
+
+msgid "online"
+msgstr "Online"
+
+msgid "subsctibers"
+msgstr "subscribers"
+
