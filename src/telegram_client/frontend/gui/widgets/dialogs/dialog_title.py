@@ -9,7 +9,7 @@ from telethon.tl.custom import dialog
 from telethon.tl.custom.dialog import Dialog as TTDialog
 from telethon.tl.types import User
 from src.services.frontend.gui.widgets.dialogs.dialog_cut import cut_text_for_dialogs
-from src.config import AMOUNT_SYMBOLS_FOR_CUTTING_MESSAGE_TEXT, AMOUNT_SYMBOLS_FOR_CUTTING_TITLE, LENGTH_TITLE
+from src.config import AMOUNT_SYMBOLS_FOR_CUTTING_MESSAGE_TEXT, AMOUNT_SYMBOLS_FOR_CUTTING_TITLE, AMOUNT_UNREAD_MARK, LENGTH_TITLE
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.services.load_internalization import _
 
@@ -118,8 +118,7 @@ class DialogTitle(_CoreWidget):
                 self.amount_unreads.setText(str(self.dialog.unread_count))
 
             self.amount_unreads.setAlignment(QtCore.Qt.AlignCenter)
-            self.amount_unreads.setFixedWidth(20)
-            self.amount_unreads.setFixedHeight(20)
+            self.amount_unreads.setFixedSize(AMOUNT_UNREAD_MARK, AMOUNT_UNREAD_MARK)
             self.layout().addWidget(self.amount_unreads)
 
     def add_seen_status(self):
