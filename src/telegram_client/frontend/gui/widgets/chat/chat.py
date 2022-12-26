@@ -41,7 +41,8 @@ class Chat(_CoreWidget):
         self.layout().addWidget(self.info_menu)
 
     def create_messanger(self):
-        self.messanger = ScrolledMessanger(self, user=self.user)
+        self.messanger = ScrolledMessanger(self, 
+                                           user=self.user)
         # self.messanger = Messanger(self, user=self.user)
         self.layout().addWidget(self.messanger)
 

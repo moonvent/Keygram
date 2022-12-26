@@ -2,31 +2,41 @@ import asyncio
 from PySide6.QtWidgets import QHBoxLayout, QWidget, QScrollArea
 from PySide6.QtCore import Qt
 from telethon.tl.types import User
+from src.services.frontend.gui.widgets.chat.messanger.video_widget import LoadMedia
 from src.services.frontend.load_all_styles import load_all_styles_file
 from src.config import DIALOG_SCROLL_WIDTH, DIALOG_WIDGET_WIDTH, MAIN_WIDGET_HEIGHT, MAIN_WIDGET_WIDTH, STYLES_FOLDER_PATH
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.telegram_client.frontend.gui.widgets.dialogs.dialog_list.scrollable_dialog_list import ScrollableDialogList
 from src.telegram_client.backend.client_init import get_me
 from src.telegram_client.frontend.gui.widgets.chat.chat import Chat
+from src.telegram_client.frontend.gui.widgets.viewer.viewer import ViewerWidget, generate_viewer, viewer
+import time
 
 
 class MainWindow(_CoreWidget):
     """
         Main Window gui widget
     """
+    user: User = None
+
     dialogs_list: QWidget = None
     chat: Chat = None
-    user: User = None
+    viewer: ViewerWidget = None
     
     def load_ui(self):
+
         self.set_fixed_size(MAIN_WIDGET_WIDTH, MAIN_WIDGET_HEIGHT)
         self.set_layout()
         self.load_me()
 
         self.load_dialogs_list()
+
         self.load_chat_widget()
 
+        self.load_viewer_vidget()
+
         self.load_styles()
+
 
     def set_layout(self):
         self.widget_layout = QHBoxLayout(self)
@@ -48,4 +58,12 @@ class MainWindow(_CoreWidget):
     def load_me(self):
         loop = asyncio.get_event_loop()
         self.user = loop.run_until_complete(get_me())
+
+    def load_viewer_vidget(self):
+        global viewer
+        viewer = generate_viewer()
+        viewer.setParent(self)
+        self.viewer = viewer
+        self.viewer.setParent(self)
+        self.layout().addWidget(self.viewer)
 

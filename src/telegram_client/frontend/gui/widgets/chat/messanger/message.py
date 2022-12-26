@@ -12,6 +12,8 @@ from zoneinfo import ZoneInfo
 from datetime import datetime
 from time import tzname
 
+from src.telegram_client.frontend.gui.widgets.chat.messanger.video_widget import VideoMessageWidget
+
 
 class Message(_CoreWidget):
     """
@@ -25,6 +27,7 @@ class Message(_CoreWidget):
     title_label: QLabel = None
     date_label: QLabel = None
     text_label: QLabel = None
+    video_message_widget: VideoMessageWidget = None
 
     def __init__(self, 
                  parent, 
@@ -49,7 +52,7 @@ class Message(_CoreWidget):
 
         self.add_title()
         self.add_send_date()
-        self.add_text()
+        self.add_content()
 
     def add_title(self):
         self.title_label = QLabel(self)
@@ -77,6 +80,12 @@ class Message(_CoreWidget):
         self.date_label.setFixedWidth(fixed_width)
         self.layout().addWidget(self.date_label, 1, index_in_layout)
 
+    def add_content(self):
+        if self.message.video_note:
+            self.load_video_message()
+        else:
+            self.add_text()
+
     def add_text(self):
         tl = self.text_label = QLabel(self)
         font = QFont(FONT_NAME)
@@ -93,4 +102,19 @@ class Message(_CoreWidget):
         tl.adjustSize()
         self.layout().addWidget(tl, 1, 1)
 
+    def load_video_message(self):
+        self.video_message_widget = VideoMessageWidget(self,
+                                                       user=self.user,
+                                                       video_message=self.message)
+        self.layout().addWidget(self.video_message_widget, 1, 1)
+
+
+    # def add_video_message(self):
+    #     self.video_widget = VideoWidget(self,
+    #                                     user=self.user,
+    #                                     video_message=self.message)
+    #     self.layout().addWidget(self.video_widget, 1, 1)
+    #
+    # def delete_video_widget(self):
+    #     self.video_widget.deleteLater()
 

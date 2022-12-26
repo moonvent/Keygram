@@ -71,7 +71,7 @@ msgid "last_online_status"
 msgstr "Was online in "
 
 msgid "online"
-msgstr "Online"
+msgstr "🟢 Online"
 
 msgid "subsctibers"
 msgstr "subscribers"

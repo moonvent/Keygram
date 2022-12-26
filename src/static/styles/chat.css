@@ -33,3 +33,8 @@
   margin-left: 5px;
   font-size: 15px;
 }
+
+#thumb_label {
+  border-radius: 160%;
+  /* border-image: url('/static/video_message/704369002/37084.jpg'); */
+}

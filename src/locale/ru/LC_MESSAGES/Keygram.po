@@ -93,7 +93,7 @@ msgid "last_online_status"
 msgstr "Был(а) в сети: "
 
 msgid "online"
-msgstr "В сети"
+msgstr "🟢 В сети"
 
 msgid "subsctibers"
 msgstr "подписчиков"

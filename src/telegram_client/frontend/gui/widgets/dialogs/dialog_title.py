@@ -12,6 +12,8 @@ from src.services.frontend.gui.widgets.dialogs.dialog_cut import cut_text_for_di
 from src.config import AMOUNT_SYMBOLS_FOR_CUTTING_MESSAGE_TEXT, AMOUNT_SYMBOLS_FOR_CUTTING_TITLE, AMOUNT_UNREAD_MARK, LENGTH_TITLE
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.services.load_internalization import _
+from zoneinfo import ZoneInfo
+from time import tzname
 
 
 class DialogTitle(_CoreWidget):
@@ -136,23 +138,31 @@ class DialogTitle(_CoreWidget):
             self.layout().addWidget(self.seen_status)
 
     def add_last_active_time(self):
-        message_date = self.dialog.date.date()
+        if self.dialog.date:
+            message_date = self.dialog.date.date()
 
-        now = datetime.now()
-        today_date = datetime.today().date()
+            now = datetime.now()
+            today_date = datetime.today().date()
+            timestamp = self.dialog.date.timestamp()
 
-        if message_date == today_date:
-            text = self.dialog.date.strftime('%H:%M')
+            current_tz = ZoneInfo(tzname[0])
 
-        else:
+            if message_date == today_date:
+                handled_date = datetime.fromtimestamp(int(timestamp), ZoneInfo(tzname[0]))
+                text = handled_date.strftime('%H:%M')
 
-            if timedelta(days=1) <= (today_date - message_date) <= timedelta(days=7):
-                text = _(message_date.strftime('%a'))
             else:
-                text = message_date.strftime('%d.%m.%y')
 
-        self.last_active_time = QLabel(self)
-        self.last_active_time.setText(text)
-        # self.amount_unreads.setFixedWidth(20)
-        self.layout().addWidget(self.last_active_time)
+                message_date_object_with_tz = datetime.fromtimestamp(int(timestamp), 
+                                                                     ZoneInfo(tzname[0]))
+
+                if timedelta(days=1) <= (today_date - message_date) <= timedelta(days=7):
+                    text = _(message_date_object_with_tz.strftime('%a'))
+                else:
+                    text = message_date_object_with_tz.strftime('%d.%m.%y')
+
+            self.last_active_time = QLabel(self)
+            self.last_active_time.setText(text)
+            # self.amount_unreads.setFixedWidth(20)
+            self.layout().addWidget(self.last_active_time)
 

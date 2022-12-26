@@ -83,12 +83,18 @@ class Messanger(_CoreWidget,
     def prepare_to_output_messages(self):
         if not self.gui_messages:
             self.gui_messages = []
-            for column_number in range(3):
+            for column_number in range(2):
                 self.layout().addWidget(QLabel(self), 0, column_number)
 
         else:
+
             for widget in self.gui_messages:
+
+                # if widget.video_widget:
+                #     widget.delete_video_widget()
+
                 widget.deleteLater()
+
             self.gui_messages.clear()
 
     def add_new_message(self, msg_number: int, message: TMessage):
@@ -100,9 +106,7 @@ class Messanger(_CoreWidget,
         self.gui_messages.append(message)
         self.layout().addWidget(message, 
                                 msg_number, 
-                                # 1
                                 1 + (1 if message.message.sender_id == self.user.id else -1)
-                                # choice((0, 2))
                                 )
 
 
