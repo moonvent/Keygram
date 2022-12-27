@@ -5,6 +5,7 @@
 
 import asyncio
 import os
+from pathlib import Path
 from PySide6.QtCore import QThread, QUrl, Signal, Slot
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QProgressBar, QVBoxLayout
@@ -19,27 +20,39 @@ from src.telegram_client.backend.client_init import client
 import time
 
 
-class ChangeProgress(QThread):
-    current_status: Signal = Signal(int)
-    progress: int = None
+# class ChangeProgress(QThread):
+#     current_status: Signal = Signal(int)
+#     progress: int = None
+#
+#     def run(self) -> None:
+#         # for i in range(1, 100):
+#         #     self.current_status.emit(i)
+#         #     time.sleep(0.2)
+#
+#         while True:
+#             if self.progress is not None:
+#                 # self.progress_bar.setValue(self.current_status)
+#                 # if self.current_status == 100:
+#                 #     self.current_status = None
+#                 print(self.progress)
+#                 self.current_status.emit(self.progress)
+#
+#                 if self.progress == 100:
+#                     self.progress = None
+#             else:
+#                 time.sleep(.1)
+
+
+class WaitToLoad(QThread):
+    signal_to_start = Signal()
+
+    path_to_file_mp4: str = None
 
     def run(self) -> None:
-        # for i in range(1, 100):
-        #     self.current_status.emit(i)
-        #     time.sleep(0.2)
-
-        while True:
-            if self.progress is not None:
-                # self.progress_bar.setValue(self.current_status)
-                # if self.current_status == 100:
-                #     self.current_status = None
-                print(self.progress)
-                self.current_status.emit(self.progress)
-
-                if self.progress == 100:
-                    self.progress = None
-            else:
-                time.sleep(.1)
+        while not os.path.exists(self.path_to_file_mp4):
+        # while not os.path.exists(self.path_to_file_mp4) and not Path(self.path_to_file_mp4).stat().st_size:
+            ...
+        self.signal_to_start.emit()
 
 
 class ViewerWidget(_CoreWidget):
@@ -52,7 +65,9 @@ class ViewerWidget(_CoreWidget):
     video_output: QVideoWidget = None
     audio_output: QAudioOutput = None
 
-    change_status_thread: ChangeProgress = None
+    wait_to_load_thread: WaitToLoad = None
+
+    # change_status_thread: ChangeProgress = None
 
     def set_layout(self):
         self.widget_layout = QVBoxLayout(self)
@@ -62,6 +77,7 @@ class ViewerWidget(_CoreWidget):
 
     def load_ui(self):
         self.set_layout()
+        self.recreate_wtl_thread()
 
         # self.add_load_status()
         #
@@ -70,6 +86,10 @@ class ViewerWidget(_CoreWidget):
         # self.change_status_thread.start()
 
         self.setup_video_player()
+
+    def recreate_wtl_thread(self):
+        self.wait_to_load_thread = WaitToLoad()
+        self.wait_to_load_thread.signal_to_start.connect(self.start_video)
 
     def add_load_status(self):
         self.progress_bar = QProgressBar(self)
@@ -84,9 +104,20 @@ class ViewerWidget(_CoreWidget):
 
     def load_video(self, path: str):
         self.path_to_file_mp4 = path
+        
+        if not os.path.exists(self.path_to_file_mp4):
+            self.wait_to_load_thread.path_to_file_mp4 = self.path_to_file_mp4
+            self.wait_to_load_thread.start()
+
+        else:
+            self.start_video()
+
+    def start_video(self):
         self.video_player.setSource(QUrl.fromLocalFile(self.path_to_file_mp4))
     
         self.video_player.play()
+
+        self.recreate_wtl_thread()
 
     def setup_video_player(self):
         self.audioOutput = QAudioOutput()
@@ -106,6 +137,7 @@ class ViewerWidget(_CoreWidget):
 
 
 viewer = None
+
 
 def generate_viewer():
     global viewer

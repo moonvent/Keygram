@@ -19,6 +19,7 @@ from threading import Thread
 from src.telegram_client.backend.client_init import client
 from src.telegram_client.frontend.gui.widgets.viewer.viewer import ViewerWidget, viewer, generate_viewer
 from src.services.frontend.gui.widgets.chat.messanger.video_widget import message_with_media_to_load
+from src.telegram_client.backend.chat.download_files import download_file
 
 
 class VideoMessageWidget(_CoreWidget):
@@ -67,8 +68,11 @@ class VideoMessageWidget(_CoreWidget):
             loop.run_until_complete(self.load_thumb())
 
         # if not os.path.exists(self.path_to_file_mp4):
-        #     # Thread(target=self.download_video).start()
-        #     self.download_video()
+            # Thread(target=asyncio.run, args=(self.download_video(),)).start()
+
+            # loop = asyncio.get_event_loop()
+            # loop.run_until_complete(self.download_video())
+            
 
     async def load_thumb(self):
         self.path_to_file_thumb = os.path.join(VIDEO_MESSAGE_PATH, f'{self.video_message.sender_id}/{self.video_message.id}.jpg')
@@ -83,6 +87,11 @@ class VideoMessageWidget(_CoreWidget):
         self.viewer.change_status_thread.progress = current_in_percent
         # self.viewer.change_progress_bar_data(current_in_percent)
 
+    # async def download_video(self):
+    #     # self.video_message.download_media(self.path_to_file_mp4)  # it doesn't work correctly
+    #     with open(self.path_to_file_mp4, 'wb') as file:
+    #         await download_file(client, self.video_message.document, file)
+    
     def download_video(self):
         # message_with_media_to_load.append((self.path_to_file_mp4, self.video_message))
         self.viewer = generate_viewer()
@@ -110,13 +119,15 @@ class VideoMessageWidget(_CoreWidget):
     def play_video(self, event):
 
         # print(self.path_to_file_mp4)
-        if not os.path.exists(self.path_to_file_mp4):
-            self.download_video()
-
         global viewer
         if not viewer:
             viewer = generate_viewer()
 
         viewer.load_video(path=self.path_to_file_mp4)
+
+        if not os.path.exists(self.path_to_file_mp4):
+            self.download_video()
+
+        # viewer.start()
         # self.video_player.play()
 
