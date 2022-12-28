@@ -123,7 +123,8 @@ class VideoMessageWidget(_CoreWidget):
         if not viewer:
             viewer = generate_viewer()
 
-        viewer.load_video(path=self.path_to_file_mp4)
+        viewer.load_video(path=self.path_to_file_mp4,
+                          message=self.video_message)
 
         if not os.path.exists(self.path_to_file_mp4):
             self.download_video()

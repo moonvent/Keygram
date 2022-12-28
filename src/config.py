@@ -3,6 +3,7 @@
 """
 
 
+from enum import Enum
 import os
 
 
@@ -132,17 +133,36 @@ MESSAGES_FONT_SIZE = 15
 
 FONT_NAME = 'Helvetica'
 
+"""
+    Media viewer widget
+"""
+
+MEDIA_VIEWER_WIDGET_WIDTH = int(MAIN_WIDGET_WIDTH / 4.5)
+
 VIDEO_MESSAGE_SIZE = 384
 VIDEO_MESSAGE_THUMB_SIZE = 320
 
 VIDEO_OUTPUT_HEIGHT = 426
 VIDEO_OUTPUT_WIDTH = 240
 
+INTERVAL_TO_CHANGE_POSITION = 1
+SPEED_STEP = .25
+
 """
     Input field
 """
 
 INPUT_FIELD_HEIGHT = 60
+
+
+"""
+    Primary settings
+"""
+
+class SettingsEnum(Enum):
+    SPEED_STEP = 'speed_step'
+
+PRIMARY_SETTINGS = {SettingsEnum.SPEED_STEP.value: 1}
 
 
 
