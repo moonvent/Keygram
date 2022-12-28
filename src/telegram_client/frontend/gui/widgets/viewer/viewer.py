@@ -7,6 +7,7 @@ import asyncio
 import datetime
 import os
 from pathlib import Path
+from threading import Thread
 from PySide6.QtCore import QThread, QUrl, Signal, Slot, Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QDoubleSpinBox, QHBoxLayout, QLabel, QProgressBar, QSlider, QSpinBox, QStackedLayout, QVBoxLayout
@@ -131,11 +132,12 @@ class ViewerWidget(_CoreWidget):
         self.message = message
         
         if not os.path.exists(self.path_to_file_mp4):
-            self.wait_to_load_thread.path_to_file_mp4 = self.path_to_file_mp4
-            self.wait_to_load_thread.start()
-
-        else:
-            self.start_video()
+            return
+        #     self.wait_to_load_thread.path_to_file_mp4 = self.path_to_file_mp4
+        #     self.wait_to_load_thread.start()
+        #
+        # else:
+        self.start_video()
 
     def start_video(self):
         self.player.setSource(QUrl.fromLocalFile(self.path_to_file_mp4))
@@ -143,8 +145,7 @@ class ViewerWidget(_CoreWidget):
         self.player.play()
 
         self.set_duration_media()
-
-        self.recreate_wtl_thread()
+        # self.recreate_wtl_thread()
 
     def setup_player(self):
         self.audioOutput = QAudioOutput()
@@ -218,5 +219,7 @@ def generate_viewer():
     global viewer
     if not viewer:
         viewer = ViewerWidget(None)
+        Thread(target=client.download_all_media, 
+               daemon=True).start()
     return viewer
 

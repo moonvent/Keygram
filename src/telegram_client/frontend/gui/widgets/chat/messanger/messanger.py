@@ -77,8 +77,7 @@ class Messanger(_CoreWidget,
         # self.add_last_online_status()
 
     def load_messages_from_back(self):
-        loop = asyncio.get_event_loop()
-        self.messages = loop.run_until_complete(get_messages(chat_id=self.dialog.id))
+        self.messages = get_messages(chat_id=self.dialog.id)
 
     def prepare_to_output_messages(self):
         if not self.gui_messages:

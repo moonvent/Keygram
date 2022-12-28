@@ -7,7 +7,7 @@ from src.services.frontend.load_all_styles import load_all_styles_file
 from src.config import DIALOG_SCROLL_WIDTH, DIALOG_WIDGET_WIDTH, MAIN_WIDGET_HEIGHT, MAIN_WIDGET_WIDTH, STYLES_FOLDER_PATH
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.telegram_client.frontend.gui.widgets.dialogs.dialog_list.scrollable_dialog_list import ScrollableDialogList
-from src.telegram_client.backend.client_init import get_me
+from src.telegram_client.backend.client_init import client
 from src.telegram_client.frontend.gui.widgets.chat.chat import Chat
 from src.telegram_client.frontend.gui.widgets.viewer.viewer import ViewerWidget, generate_viewer, viewer
 import time
@@ -56,8 +56,7 @@ class MainWindow(_CoreWidget):
         self.scrollable_dialog_list.chat = self.chat
 
     def load_me(self):
-        loop = asyncio.get_event_loop()
-        self.user = loop.run_until_complete(get_me())
+        self.user = client.get_me()
 
     def load_viewer_vidget(self):
         global viewer

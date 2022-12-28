@@ -64,21 +64,28 @@ class VideoMessageWidget(_CoreWidget):
         self.path_to_file_mp4 = os.path.join(VIDEO_MESSAGE_PATH, f'{self.video_message.sender_id}/{self.video_message.id}.mp4')
 
         if not os.path.exists(self.path_to_file_thumb):
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(self.load_thumb())
+
+            client.download_media(message=self.video_message,
+                                  path=self.path_to_file_thumb,
+                                  thumb=True)
+            # loop = asyncio.get_event_loop()
+            # loop.run_until_complete(self.load_thumb())
 
         # if not os.path.exists(self.path_to_file_mp4):
             # Thread(target=asyncio.run, args=(self.download_video(),)).start()
 
             # loop = asyncio.get_event_loop()
             # loop.run_until_complete(self.download_video())
-            
 
-    async def load_thumb(self):
-        self.path_to_file_thumb = os.path.join(VIDEO_MESSAGE_PATH, f'{self.video_message.sender_id}/{self.video_message.id}.jpg')
+        if not os.path.exists(self.path_to_file_mp4):
+            client.add_to_downloads(message=self.video_message,
+                                    path=self.path_to_file_mp4)
 
-        if not os.path.exists(self.path_to_file_thumb):
-            await self.video_message.download_media(self.path_to_file_thumb, thumb=-1)      # for download only thumb
+    # async def load_thumb(self):
+    #     self.path_to_file_thumb = os.path.join(VIDEO_MESSAGE_PATH, f'{self.video_message.sender_id}/{self.video_message.id}.jpg')
+    #
+    #     if not os.path.exists(self.path_to_file_thumb):
+    #         await self.video_message.download_media(self.path_to_file_thumb, thumb=-1)      # for download only thumb
 
     def output_download_process(self, current, total):
         # print('Downloaded', current, 'out of', total,
@@ -92,17 +99,17 @@ class VideoMessageWidget(_CoreWidget):
     #     with open(self.path_to_file_mp4, 'wb') as file:
     #         await download_file(client, self.video_message.document, file)
     
-    def download_video(self):
-        # message_with_media_to_load.append((self.path_to_file_mp4, self.video_message))
-        self.viewer = generate_viewer()
-
-        async def download_video_async():
-            await self.video_message.download_media(self.path_to_file_mp4, 
-                                                    # progress_callback=self.output_download_process
-                                                    )
-
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(download_video_async())
+    # def download_video(self):
+    #     # message_with_media_to_load.append((self.path_to_file_mp4, self.video_message))
+    #     # self.viewer = generate_viewer()
+    #
+    #     async def download_video_async():
+    #         await self.video_message.download_media(self.path_to_file_mp4, 
+    #                                                 # progress_callback=self.output_download_process
+    #                                                 )
+    #
+    #     loop = asyncio.get_event_loop()
+    #     loop.run_until_complete(download_video_async())
 
     def setup_thumb(self):
         self.thumb_label = QLabel(self)
@@ -126,8 +133,10 @@ class VideoMessageWidget(_CoreWidget):
         viewer.load_video(path=self.path_to_file_mp4,
                           message=self.video_message)
 
-        if not os.path.exists(self.path_to_file_mp4):
-            self.download_video()
+        # client.download_all_media(start_media_path=self.path_to_file_mp4)
+
+        # if not os.path.exists(self.path_to_file_mp4):
+        #     self.download_video()
 
         # viewer.start()
         # self.video_player.play()

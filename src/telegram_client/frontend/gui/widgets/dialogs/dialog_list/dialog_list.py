@@ -24,7 +24,7 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
     """
         Dialog list widget, with inner dialogs
     """
-    telethon_dialogs: List[TTDialog] = []
+    telethon_dialogs: List[TTDialog] = None
     gui_dialogs: List[Dialog] = []
     _active_dialog: Dialog = None
     vertical_scroll: QScrollBar = None
@@ -59,8 +59,7 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
         """
             Load dialogs from telethon
         """
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(get_dialogs(dialogs_list=self.telethon_dialogs))
+        self.telethon_dialogs = get_dialogs()
 
     def handle_dialogs(self):
         for dialog_number, tt_dialog in enumerate(self.telethon_dialogs):
