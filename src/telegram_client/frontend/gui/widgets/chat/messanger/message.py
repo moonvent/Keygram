@@ -108,13 +108,3 @@ class Message(_CoreWidget):
                                                        video_message=self.message)
         self.layout().addWidget(self.video_message_widget, 1, 1)
 
-
-    # def add_video_message(self):
-    #     self.video_widget = VideoWidget(self,
-    #                                     user=self.user,
-    #                                     video_message=self.message)
-    #     self.layout().addWidget(self.video_widget, 1, 1)
-    #
-    # def delete_video_widget(self):
-    #     self.video_widget.deleteLater()
-

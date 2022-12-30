@@ -39,13 +39,20 @@ class CustomTelegramClient:
     
     media_to_download: list[DownloadFile, ...] = []
     need_to_load: bool = False
+
+    download_cycle: bool = False
     
     def __init__(self) -> None:
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
+        self.recreate_loop()
 
         self.client = TelegramClient('session_name', int(api_id), api_hash)
         self.client.start()
+
+    def recreate_loop(self):
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+
+    # попробуй сделать отдельно луп и в него сувать задачки
 
     def async_function():
         """
@@ -54,6 +61,11 @@ class CustomTelegramClient:
         def wrapper(func):
             @functools.wraps(func) 
             def wrapped(self, *args, **kwargs):
+                # if self.loop.is_running():
+                #     self.recreate_loop()
+                # if 'download_all_task' in args:
+                #     asyncio.gather(func(self, *args, **kwargs))
+                # else:
                 return self.loop.run_until_complete(func(self, *args, **kwargs))
             return wrapped
         return wrapper
@@ -84,13 +96,9 @@ class CustomTelegramClient:
             return await self.client.download_media(message, path, thumb=-1)
 
     @async_function()
-    async def download_all_media(self, start_media_path: str = None):
-        # if start_media_path:
-        #     await self.client.download_media(self.media_to_download[start_media_path], start_media_path)
-
-        # self.client.download_media(self.media_to_download[start_media_path], start_media_path)
-
+    async def download_all_media(self):
         while True:
+            print(self.media_to_download)
             if self.media_to_download:
                 download_file: DownloadFile = self.media_to_download.pop(0)
                 if not os.path.exists(download_file.path):
@@ -99,7 +107,9 @@ class CustomTelegramClient:
                     #        args=(download_file.path, download_file.speed)).start()
 
             if not self.check_need_to_load_static():
-                time.sleep(1)
+                print('wait to media')
+                await asyncio.sleep(1)
+        print('end')
 
     def check_need_to_load_static(self) -> bool:
         """
@@ -115,12 +125,18 @@ class CustomTelegramClient:
 client: CustomTelegramClient = None
 
 
+
+
 def start_client():
     custom_client = CustomTelegramClient()
     global client
     client = custom_client
 
 
-tg_client_thread = Thread(target=start_client, daemon=True)
+tg_client_thread: Thread = Thread(target=start_client, daemon=True)
 tg_client_thread.start()
-time.sleep(2)
+
+while not client:
+    ...
+
+# time.sleep(2)

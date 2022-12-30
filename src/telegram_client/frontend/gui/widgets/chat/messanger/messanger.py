@@ -3,6 +3,7 @@
 """
 import asyncio
 from random import choice, randint
+from threading import Thread
 from PySide6 import QtGui
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QGridLayout, QLayout, QScrollArea, QScrollBar, QSizePolicy, QVBoxLayout, QLabel, QPushButton, QWidget
@@ -55,7 +56,11 @@ class Messanger(_CoreWidget,
             self.set_scroll(new_dialog=dialog)
         else:
             self.recover_scroll(old_dialog=dialog)
-        
+
+        client.download_cycle = True
+        # Thread(target=client.download_all_media, 
+        #        daemon=True).start()
+
     def set_layout(self):
         self.widget_layout = QGridLayout(self)
         self.setLayout(self.widget_layout)
@@ -80,6 +85,9 @@ class Messanger(_CoreWidget,
         self.messages = get_messages(chat_id=self.dialog.id)
 
     def prepare_to_output_messages(self):
+        """
+            Clear messages from other dialog, and add messages from new
+        """
         if not self.gui_messages:
             self.gui_messages = []
             for column_number in range(2):
@@ -88,10 +96,8 @@ class Messanger(_CoreWidget,
         else:
 
             for widget in self.gui_messages:
-
                 # if widget.video_widget:
                 #     widget.delete_video_widget()
-
                 widget.deleteLater()
 
             self.gui_messages.clear()

@@ -246,12 +246,23 @@ class ViewerWidget(_CoreWidget):
 viewer = None
 
 
+async def download_all_media():
+    asyncio.gather(client.download_all_media())
+    while True:
+        await asyncio.sleep(1)
+
+
 def generate_viewer():
     global viewer
     if not viewer:
         viewer = ViewerWidget(None)
+        # create new thred for load all media in background
+        # Thread(target=asyncio.run, 
+        #        args=(download_all_media(),),
+        #        daemon=True).start()
+
         Thread(target=client.download_all_media, 
                daemon=True).start()
-        # create new thred for load all media in background
+        
     return viewer
 
