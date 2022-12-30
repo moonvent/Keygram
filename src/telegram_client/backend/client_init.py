@@ -5,19 +5,29 @@
 import asyncio
 import os
 from threading import Thread
-from typing import Coroutine
+from typing import Coroutine, NamedTuple
 from telethon.hints import TotalList
 from telethon.tl.patched import Message
 
 from telethon.tl.types import Dialog, User
+from src.config import SPEED_STEP, SettingsEnum
+from src.services.database.models.global_data import get_settings
 from src.services import load_env_vars              # for load env vars from .env file
 import time
 from telethon import TelegramClient, custom, events, sync
 import functools
 
+from src.telegram_client.backend.chat.video_widget import fastify_video
+
 
 api_id = str(os.environ['API_ID'])
 api_hash = str(os.environ['API_HASH'])
+
+
+class DownloadFile(NamedTuple):
+    path: str
+    message: Message
+    speed: float
 
 
 class CustomTelegramClient:
@@ -27,7 +37,7 @@ class CustomTelegramClient:
     client: TelegramClient = None
     loop: asyncio.AbstractEventLoop = None
     
-    media_to_download: list[tuple[str, Message], ...] = []
+    media_to_download: list[DownloadFile, ...] = []
     need_to_load: bool = False
     
     def __init__(self) -> None:
@@ -82,9 +92,11 @@ class CustomTelegramClient:
 
         while True:
             if self.media_to_download:
-                path, message = self.media_to_download.pop(0)
-                if not os.path.exists(path):
-                    await self.client.download_media(message, path)
+                download_file: DownloadFile = self.media_to_download.pop(0)
+                if not os.path.exists(download_file.path):
+                    await self.client.download_media(download_file.message, download_file.path)
+                    # Thread(target=fastify_video, 
+                    #        args=(download_file.path, download_file.speed)).start()
 
             if not self.check_need_to_load_static():
                 time.sleep(1)
@@ -93,10 +105,11 @@ class CustomTelegramClient:
         """
             Search if need to load new data
         """
-        return any(not os.path.exists(path) for path, message in self.media_to_download)
+        return any(not os.path.exists(download_file.path) for download_file in self.media_to_download)
 
-    def add_to_downloads(self, message: Message, path: str):
-        self.media_to_download.append((path, message))
+    def add_to_downloads(self, message: Message, path: str, speed: int):
+        # self.media_to_download.append((path, message, speed))
+        self.media_to_download.append(DownloadFile(path, message, speed))
 
 
 client: CustomTelegramClient = None
@@ -111,4 +124,3 @@ def start_client():
 tg_client_thread = Thread(target=start_client, daemon=True)
 tg_client_thread.start()
 time.sleep(2)
-

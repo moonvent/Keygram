@@ -16,7 +16,7 @@ class ChangePositionSlider(QSlider):
     
     def __init__(self, 
                  parent, 
-                 player: QMediaPlayer,
+                 player: QMediaPlayer, 
                  current_position_label: QLabel) -> None:
         self.player = player
         self.current_position_label = current_position_label
@@ -28,6 +28,7 @@ class ChangePositionSlider(QSlider):
         self.setFixedWidth(MEDIA_VIEWER_WIDGET_WIDTH)
         # self.setTickPosition(QSlider.TicksAbove)      # doesn't work(((
         self.sliderReleased.connect(self.change_media_position)
+        self.sliderMoved.connect(self.slider_moved)
         self.setMaximum(60)
 
         self.bind_player_bind_to_position()
@@ -51,6 +52,7 @@ class ChangePositionSlider(QSlider):
 
     def mouse_release_event(self, event):
         self.bind_player_bind_to_position()
+        self.current_position_label.setText(self.get_text_before_slash()) 
         super().mouseReleaseEvent(event)
         if self.play_before_change_position:
             self.player.play()
@@ -70,4 +72,11 @@ class ChangePositionSlider(QSlider):
             Bind for change slider with video playing
         """
         self.player.positionChanged.connect(self.change_slider_by_media_position)
+
+    def get_text_before_slash(self) -> str:
+        return self.current_position_label.text().split(' / ')[0]
+
+    def slider_moved(self, selected_second: int):
+        new_selected_second = str(datetime.timedelta(seconds=selected_second))
+        self.current_position_label.setText(self.get_text_before_slash() + f' / {new_selected_second}')
 

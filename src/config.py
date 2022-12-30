@@ -44,6 +44,12 @@ VIDEO_MESSAGE_PATH = os.path.join(STATIC_FOLDER_PATH, VIDEO_MESSAGE_NAME)
 
 check_exists_folder(path=VIDEO_MESSAGE_PATH)
 
+VOICE_FROM_VIDEO_NAME = 'temp_voices_from_videos'
+VOICE_FROM_VIDEO_NAME_PATH = os.path.join(VIDEO_MESSAGE_PATH, VOICE_FROM_VIDEO_NAME)
+
+check_exists_folder(path=VOICE_FROM_VIDEO_NAME_PATH)
+
+
 AVATARS_FOLDER_NAME = 'avatars'
 AVATARS_FOLDER_PATH = os.path.join(STATIC_FOLDER_PATH, AVATARS_FOLDER_NAME)
 
@@ -54,6 +60,7 @@ LOCALE_FOLDER_PATH = os.path.join(SOURCE_FOLDER_NAME, LOCALE_FOLDER_NAME)
 
 check_exists_folder(path=LOCALE_FOLDER_PATH, 
                     error=True)
+
 STYLES_FOLDER_NAME = 'styles'
 STYLES_FOLDER_PATH = os.path.join(STATIC_FOLDER_PATH, STYLES_FOLDER_NAME)
 
@@ -160,9 +167,9 @@ INPUT_FIELD_HEIGHT = 60
 """
 
 class SettingsEnum(Enum):
-    SPEED_STEP = 'speed_step'
+    SPEED = 'speed'
 
-PRIMARY_SETTINGS = {SettingsEnum.SPEED_STEP.value: 1}
+PRIMARY_SETTINGS = {SettingsEnum.SPEED.value: 1}
 
 
 
