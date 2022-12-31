@@ -34,7 +34,6 @@ msgstr " "
 
 msgid "bot"
 msgstr "🤖"
-
 msgid "user"
 msgstr "👤"
 
@@ -97,3 +96,8 @@ msgstr "🟢 В сети"
 
 msgid "subsctibers"
 msgstr "подписчиков"
+
+msgid "online_status_hidden"
+msgstr "Статус скрыт"
+
+

@@ -4,15 +4,15 @@
 from PySide6.QtGui import QFont
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGridLayout, QLabel
-from telethon.tl.types import Dialog, User
-from src.config import FONT_NAME, MESSAGE_NAME, MESSAGES_FONT_SIZE
+from telethon.tl.types import Channel, Dialog, User
+from src.config import CHAT_COLUMN_WIDTH, CHAT_WIDTH, FONT_NAME, MESSAGE_NAME, MESSAGES_FONT_SIZE
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from telethon.tl.patched import Message as TMessage
 from zoneinfo import ZoneInfo
 from datetime import datetime
 from time import tzname
 
-from src.telegram_client.frontend.gui.widgets.chat.messanger.video_widget import VideoMessageWidget
+from src.telegram_client.frontend.gui.widgets.chat.messanger.video_message_widget import VideoMessageWidget
 
 
 class Message(_CoreWidget):
@@ -45,10 +45,13 @@ class Message(_CoreWidget):
         self.widget_layout = QGridLayout(self)
         self.setLayout(self.widget_layout)
         self.layout().setContentsMargins(0, 0, 0, 0)
+        # self.layout().setColumnStretch(0, 0)
+        # self.layout().setColumnStretch(1, 0)
         # self.layout().setSpacing(0)
 
     def load_ui(self):
         self.set_layout()
+        self.setFixedWidth(CHAT_COLUMN_WIDTH)
 
         self.add_title()
         self.add_send_date()
@@ -56,7 +59,13 @@ class Message(_CoreWidget):
 
     def add_title(self):
         self.title_label = QLabel(self)
-        self.title_label.setText(self.message.sender.first_name)
+
+        if isinstance(self.message.sender, Channel):
+            title = self.message.sender.title
+        else:
+            title = self.message.sender.first_name
+
+        self.title_label.setText(title)
         self.layout().addWidget(self.title_label, 0, 1)
 
     def add_send_date(self):

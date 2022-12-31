@@ -98,23 +98,28 @@ class InfoMenu(_CoreWidget):
         else:
             current_tz = ZoneInfo(tzname[0])
 
-            last_online_date = datetime.fromtimestamp(int(entity.status.was_online.timestamp()), 
-                                                      ZoneInfo(tzname[0]))
+            if hasattr(entity.status, 'was_online'):
+                last_online_date = datetime.fromtimestamp(int(entity.status.was_online.timestamp()), 
+                                                          ZoneInfo(tzname[0]))
 
-            time_between_now_and_last_online = datetime.now().replace(tzinfo=current_tz) - last_online_date
-            last_online_text = _('last_online_status')
+                time_between_now_and_last_online = datetime.now().replace(tzinfo=current_tz) - last_online_date
+                last_online_text = _('last_online_status')
 
-            if time_between_now_and_last_online > timedelta(days=7):
-                last_online_text += last_online_date.strftime('%H:%M %d.%m.%Y')
+                if time_between_now_and_last_online > timedelta(days=7):
+                    last_online_text += last_online_date.strftime('%H:%M %d.%m.%Y')
 
-            elif time_between_now_and_last_online > timedelta(days=1):
-                last_online_text += last_online_date.strftime('%H:%M %d.%m.%Y')
+                elif time_between_now_and_last_online > timedelta(days=1):
+                    last_online_text += last_online_date.strftime('%H:%M %d.%m.%Y')
 
-            elif time_between_now_and_last_online > timedelta(hours=1):
-                last_online_text += last_online_date.strftime('%H:%M')
+                elif time_between_now_and_last_online > timedelta(hours=1):
+                    last_online_text += last_online_date.strftime('%H:%M')
+
+                else:
+                    last_online_text += last_online_date.strftime('%H:%M')
 
             else:
-                last_online_text += last_online_date.strftime('%H:%M')
+
+                last_online_text = _('online_status_hidden')
 
             self.online_status_label.setText(last_online_text)
 

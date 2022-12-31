@@ -76,3 +76,6 @@ msgstr "🟢 Online"
 msgid "subsctibers"
 msgstr "subscribers"
 
+
+msgid "online_status_hidden"
+msgstr "Status is hidden"

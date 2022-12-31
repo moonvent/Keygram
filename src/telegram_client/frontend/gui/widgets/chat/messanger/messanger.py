@@ -57,9 +57,8 @@ class Messanger(_CoreWidget,
         else:
             self.recover_scroll(old_dialog=dialog)
 
-        client.download_cycle = True
-        # Thread(target=client.download_all_media, 
-        #        daemon=True).start()
+        Thread(target=client.download_all_media, 
+               daemon=True).start()
 
     def set_layout(self):
         self.widget_layout = QGridLayout(self)

@@ -18,6 +18,7 @@ from src.telegram_client.frontend.gui._core_widget import _CoreWidget, _Keyboard
 from src.telegram_client.backend.dialogs.dialogs import get_dialogs
 from src.telegram_client.frontend.gui.widgets.dialogs.dialog import Dialog
 from src.telegram_client.frontend.gui.widgets.chat.chat import Chat
+from src.telegram_client.backend.client_init import client
 
 
 class DialogList(_CoreWidget, _KeyboardShortcuts):
@@ -102,8 +103,26 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
         self.set_keybind_handlers(keybind_title=Keymaps.UP_IN_DIALOGS_LIST,
                                   method=self.activate_chat_above)
 
+    def switch_dialog(func):
+
+        def wrapped(self, *args, **kwargs):
+
+            self.active_dialog.setObjectName(DIALOG_NAME)
+
+            client.download_cycle = False
+            # client.stop_download_task()
+            while client.loop.is_running():
+                ...
+
+            func(self, *args, **kwargs)
+
+            self.active_dialog.setObjectName(ACTIVE_DIALOG_NAME)
+            self.load_styles()
+
+        return wrapped
+
+    @switch_dialog
     def activate_chat_above(self):
-        self.active_dialog.setObjectName(DIALOG_NAME)
         active_dialog_index = self.gui_dialogs.index(self.active_dialog)
 
         if active_dialog_index == 0:        # for infine scroll
@@ -114,17 +133,14 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
         else:
             self.active_dialog = self.gui_dialogs[active_dialog_index - 1]
 
-        self.active_dialog.setObjectName(ACTIVE_DIALOG_NAME)
-        self.load_styles()
-
         if active_dialog_index <= self.index_to_continue_scroll_up:
             self.vertical_scroll.setValue(self.vertical_scroll.value() - DIALOG_WIDGET_HEIGHT)
             if active_dialog_index != 1:
                 self.index_to_continue_scroll_up -= 1
                 self.index_to_continue_scroll_down -= 1
         
+    @switch_dialog
     def activate_chat_below(self):
-        self.active_dialog.setObjectName(DIALOG_NAME)
         active_dialog_index = self.gui_dialogs.index(self.active_dialog)
 
         if active_dialog_index == len(self.gui_dialogs) - 1:        # for infine scroll
@@ -139,9 +155,6 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
         else:
             self.active_dialog = self.gui_dialogs[active_dialog_index + 1]
 
-        self.active_dialog.setObjectName(ACTIVE_DIALOG_NAME)
-        self.load_styles()        
-         
         if active_dialog_index >= self.index_to_continue_scroll_down:
             self.vertical_scroll.setValue(self.vertical_scroll.value() + DIALOG_WIDGET_HEIGHT)
             if (len(self.gui_dialogs) - 2) != active_dialog_index:

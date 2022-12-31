@@ -61,10 +61,11 @@ class VideoMessageWidget(_CoreWidget):
 
     def load_content(self):
         speed = get_settings()[SettingsEnum.SPEED.value]
+        path_to_file_without_ext = os.path.join(VIDEO_MESSAGE_PATH, self.video_message.file.id)
 
-        self.path_to_file_thumb = os.path.join(VIDEO_MESSAGE_PATH, f'{self.video_message.sender_id}/{self.video_message.id}.jpg')
-        self.path_to_file_mp4 = os.path.join(VIDEO_MESSAGE_PATH, f'{self.video_message.sender_id}/{self.video_message.id}.mp4')
-        self.path_to_file_with_need_speed = os.path.join(VIDEO_MESSAGE_PATH, f'{self.video_message.sender_id}/{self.video_message.id}___speed_coef__.mp4')
+        self.path_to_file_thumb = path_to_file_without_ext + '.jpg'
+        self.path_to_file_mp4 = path_to_file_without_ext + '.mp4'
+        self.path_to_file_with_need_speed = path_to_file_without_ext + '___speed_coef__.mp4'
 
         if not os.path.exists(self.path_to_file_thumb):
 

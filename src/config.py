@@ -153,7 +153,6 @@ VIDEO_OUTPUT_HEIGHT = 426
 VIDEO_OUTPUT_WIDTH = 240
 
 INTERVAL_TO_CHANGE_POSITION = 1
-SPEED_STEP = .25
 
 """
     Input field
@@ -168,8 +167,32 @@ INPUT_FIELD_HEIGHT = 60
 
 class SettingsEnum(Enum):
     SPEED = 'speed'
+    VOLUME = 'volume'
 
-PRIMARY_SETTINGS = {SettingsEnum.SPEED.value: 1}
+PRIMARY_SETTINGS = {SettingsEnum.SPEED.value: 1,
+                    SettingsEnum.VOLUME.value: 50}
 
 
+CHAT_WIDTH = MAIN_WIDGET_WIDTH - MEDIA_VIEWER_WIDGET_WIDTH - DIALOG_WIDGET_WIDTH
 
+CHAT_COLUMN_WIDTH = int(CHAT_WIDTH / 2.3)
+
+
+"""
+    Speed spinbox
+"""
+
+SPEED_STEP = .25
+
+SPEED_SPINBOX_MAX = 10
+SPEED_SPINBOX_MIN = 0 + SPEED_STEP
+
+
+"""
+    Volume slider
+"""
+
+VOLUME_SLIDER_MAX = 100
+VOLUME_SLIDER_MIN = 0
+
+VOLUME_STEP = 5

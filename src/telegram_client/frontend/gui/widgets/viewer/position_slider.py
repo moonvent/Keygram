@@ -43,6 +43,7 @@ class ChangePositionSlider(QSlider):
         self.player.setPosition(int(new_position))
 
     def change_slider_by_media_position(self, new_position: int):
+        print(new_position)
         self.current_position_label.setText(str(datetime.timedelta(milliseconds=new_position)).split('.')[0])
         self.setValue(int(new_position / 1000))
 
