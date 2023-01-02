@@ -35,26 +35,31 @@ class DialogText(_CoreWidget):
     def add_text(self):
         self.text_widget = QLabel(self)
 
+        text = ''
+
+        if self.dialog.is_group:
+            text += f'<u>{self.dialog.message.sender.first_name}</u>: '
+
         if self.dialog.message.video_note:
-            text = _('video_message')
+            text += _('video_message')
 
         elif self.dialog.message.voice:
-            text = _('voice_message')
+            text += _('voice_message')
 
         elif self.dialog.message.grouped_id:
-            text = _('message_with_group_attachments')
+            text += _('message_with_group_attachments')
 
         elif self.dialog.message.video:
-            text = _('video') + '\n' + self.dialog.message.text
+            text += _('video') + '\n' + self.dialog.message.text
 
         elif self.dialog.message.photo:
-            text = _('photo') + '\n' + self.dialog.message.text
+            text += _('photo') + '\n' + self.dialog.message.text
 
         elif self.dialog.message.text:
-            text = self.dialog.message.text
+            text += self.dialog.message.text
 
         else:
-            text = _('unknown_message_type')
+            text += _('unknown_message_type')
         #
         # elif self.dialog.message.photo and self.dialog.message.photo.grouped_id:
         #     text = _('group_media_message')

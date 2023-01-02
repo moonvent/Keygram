@@ -50,16 +50,13 @@ class CustomTelegramClient:
         self.client = TelegramClient('session_name', int(api_id), api_hash)
         self.client.start()
 
+    def run_forever(self):
+        # return
+        self.loop.run_forever()
+
     def recreate_loop(self):
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
-
-    async def start_download_task(self, coro):
-        self.download_task = self.loop.create_task(coro)
-        await self.download_task
-
-    def stop_download_task(self):
-        self.download_task.cancel()
 
     def async_function():
         """
@@ -72,12 +69,13 @@ class CustomTelegramClient:
                 coro = func(self, *args, **kwargs)
 
                 if func.__name__ == self.download_all_media.__name__:
-                    try:
-                        return self.loop.run_until_complete(self.start_download_task(coro))
-                    except:
-                        ...
+                    # for all downloading method
+                    asyncio.run_coroutine_threadsafe(coro, loop=self.loop)
+
+                else:
+                    return asyncio.run_coroutine_threadsafe(coro, loop=self.loop).result()
                     
-                return self.loop.run_until_complete(coro)
+                # return self.loop.run_until_complete(coro)
             return wrapped
         return wrapper
 
@@ -104,7 +102,7 @@ class CustomTelegramClient:
         if not thumb:
             return await self.client.download_media(message, path)
         else:
-            return await self.client.download_media(message, path, thumb=-1)
+            return await self.client.download_media(message, path, thumb=1)
 
     @async_function()
     async def download_all_media(self):
@@ -118,6 +116,7 @@ class CustomTelegramClient:
                     #        args=(download_file.path, download_file.speed)).start()
 
             if not self.check_need_to_load_static():
+                # for not waste resources on air
                 self.download_cycle = False
 
     def check_need_to_load_static(self) -> bool:
@@ -127,7 +126,6 @@ class CustomTelegramClient:
         return any(not os.path.exists(download_file.path) for download_file in self.media_to_download)
 
     def add_to_downloads(self, message: Message, path: str, speed: int):
-        # self.media_to_download.append((path, message, speed))
         self.media_to_download.append(DownloadFile(path, message, speed))
 
 
@@ -138,6 +136,7 @@ def start_client():
     custom_client = CustomTelegramClient()
     global client
     client = custom_client
+    custom_client.run_forever()
 
 
 tg_client_thread: Thread = Thread(target=start_client, daemon=True)

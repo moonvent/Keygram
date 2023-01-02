@@ -59,7 +59,7 @@ msgid "message_with_group_attachments"
 msgstr "📑 Message with group attachments"
 
 msgid "unknown_message_type"
-msgstr "⁉️  Unknown message type"
+msgstr "🚫 Unknown message type"
 
 msgid "seen_status"
 msgstr "🙉"

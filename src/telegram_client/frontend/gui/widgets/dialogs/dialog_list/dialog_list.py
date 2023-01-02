@@ -104,15 +104,13 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
                                   method=self.activate_chat_above)
 
     def switch_dialog(func):
+        """
+            Change dialog style and reload it
+        """
 
         def wrapped(self, *args, **kwargs):
 
             self.active_dialog.setObjectName(DIALOG_NAME)
-
-            client.download_cycle = False
-            # client.stop_download_task()
-            while client.loop.is_running():
-                ...
 
             func(self, *args, **kwargs)
 

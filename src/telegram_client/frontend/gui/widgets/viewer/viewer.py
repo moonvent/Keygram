@@ -201,6 +201,7 @@ viewer = None
 
 def generate_viewer():
     global viewer
+
     if not viewer:
         viewer = ViewerWidget(None)
         
