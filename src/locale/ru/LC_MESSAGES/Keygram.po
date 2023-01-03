@@ -100,4 +100,5 @@ msgstr "подписчиков"
 msgid "online_status_hidden"
 msgstr "Статус скрыт"
 
-
+msgid "write_message"
+msgstr "Введи сообщение"

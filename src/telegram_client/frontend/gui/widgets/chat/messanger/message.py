@@ -60,10 +60,12 @@ class Message(_CoreWidget):
     def add_title(self):
         self.title_label = QLabel(self)
 
-        if isinstance(self.message.sender, Channel):
-            title = self.message.sender.title
-        else:
+        if isinstance(self.message.sender, User):
             title = self.message.sender.first_name
+        elif self.message.post_author:
+            title = self.message.post_author
+        else:
+            title = self.message.sender.title
 
         self.title_label.setText(title)
         self.layout().addWidget(self.title_label, 0, 1)

@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QPushButton, QScrollBar, QVBoxLayout, QWidget, QSc
 from PySide6.QtCore import Qt
 from telethon.tl.custom import dialog 
 from telethon.tl.custom.dialog import Dialog as TTDialog
+from telethon.tl.patched import Message
 from telethon.tl.types import User
 from src.database.keymaps import Keymaps
 from src.services.database.models.keymaps import get_keybinds
@@ -34,6 +35,8 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
     index_to_continue_scroll_up: int = 1        # dialogs index which be ignored for scrolling
     index_to_continue_scroll_down: int = 8      # dialogs index which be ignored for scrolling
 
+    gui_dialogs_with_id: dict[int, TTDialog] = {}
+
     _chat: Chat = None
 
     def __init__(self, parent, user) -> None:
@@ -47,10 +50,15 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
         self.layout().setSpacing(0)
 
     def load_ui(self):
-        self.loaded_ui = True
         self.set_layout()
         self.load_dialogs_in_ui()
         self.set_keyboard_shortcuts()
+
+        client.dialog_update_handler = self.dialog_update_handler
+
+    def dialog_update_handler(self, dialog, message: Message, dialog_id: int):
+        gui_dialog: Dialog = self.gui_dialogs_with_id[dialog_id]
+        gui_dialog.update_data(message=message)
 
     def load_dialogs_in_ui(self):
         self.load_dialogs_from_telegram()
@@ -73,6 +81,7 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
                 self.active_dialog = gui_dialog
 
             self.gui_dialogs.append(gui_dialog)
+            self.gui_dialogs_with_id[tt_dialog.id] = gui_dialog
 
             self.layout().addWidget(gui_dialog)
 
@@ -93,6 +102,7 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
     @active_dialog.setter
     def active_dialog(self, gui_dialog: Dialog):
         self._active_dialog = gui_dialog
+        gui_dialog.clear_unread_status()
         if self.chat:
             self.chat.dialog = gui_dialog.dialog
 
@@ -125,8 +135,6 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
 
         if active_dialog_index == 0:        # for infine scroll
             return
-            # self.active_dialog = self.gui_dialogs[-1]
-            # self.vertical_scroll.setValue(self.vertical_scroll.maximum())
 
         else:
             self.active_dialog = self.gui_dialogs[active_dialog_index - 1]
@@ -143,13 +151,7 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
 
         if active_dialog_index == len(self.gui_dialogs) - 1:        # for infine scroll
             return
-            # # in code about happend smth straight
-            # self.active_dialog = self.gui_dialogs[0]
-            # print('before', self.vertical_scroll.value())
-            # print('minimum', self.vertical_scroll.minimum())
-            # while self.vertical_scroll.value():
-                # self.vertical_scroll.setValue(self.vertical_scroll.value() - DIALOG_WIDGET_HEIGHT)
-            # print('after', self.vertical_scroll.value())
+            
         else:
             self.active_dialog = self.gui_dialogs[active_dialog_index + 1]
 

@@ -1,5 +1,7 @@
 from PySide6 import QtCore
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from telethon.tl.patched import Message
+from telethon.tl.types import Channel, User
 from src.services.frontend.gui.widgets.dialogs.dialog_cut import cut_text_for_dialogs
 from src.config import AMOUNT_SYMBOLS_FOR_CUTTING_MESSAGE_TEXT
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
@@ -14,11 +16,16 @@ class DialogText(_CoreWidget):
     """
     text_widget: QLabel = None
     dialog: Dialog = None
+    user: User = None
+    message: Message = None
 
     def __init__(self, 
                  parent, 
-                 dialog: Dialog) -> None:
+                 dialog: Dialog,
+                 user: User) -> None:
         self.dialog = dialog
+        self.message = dialog.message
+        self.user = user
         super().__init__(parent)
 
     def set_layout(self):
@@ -33,30 +40,53 @@ class DialogText(_CoreWidget):
         self.add_text()
 
     def add_text(self):
-        self.text_widget = QLabel(self)
+        """
+            add preview dialog text
+            :param message: if last dialog message was update
+        """
+        if not self.text_widget:
+            self.text_widget = QLabel(self)
+            self.text_widget.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+            self.layout().addWidget(self.text_widget)
+
+        self.set_new_text()
+
+    def set_new_text(self, message: Message = None):
+        """
+            :param message: if last dialog message was update
+        """
+        if message:
+            self.message = message
 
         text = ''
 
-        if self.dialog.is_group:
-            text += f'<u>{self.dialog.message.sender.first_name}</u>: '
+        if self.dialog.is_group and self.message.sender != self.user:
+            if self.message.post_author:
+                nickname = self.message.post_author
+            elif isinstance(self.message.sender, Channel):
+                nickname = self.message.sender.title
+            else:
+                nickname = self.message.sender.first_name
 
-        if self.dialog.message.video_note:
+            text += f'<u>{nickname}</u>: '
+
+        if self.message.video_note:
             text += _('video_message')
 
-        elif self.dialog.message.voice:
+        elif self.message.voice:
             text += _('voice_message')
 
-        elif self.dialog.message.grouped_id:
+        elif self.message.grouped_id:
             text += _('message_with_group_attachments')
 
-        elif self.dialog.message.video:
+        elif self.message.video:
             text += _('video') + '\n' + self.dialog.message.text
 
-        elif self.dialog.message.photo:
+        elif self.message.photo:
             text += _('photo') + '\n' + self.dialog.message.text
 
-        elif self.dialog.message.text:
-            text += self.dialog.message.text
+        elif self.message.text:
+            text += self.message.text
 
         else:
             text += _('unknown_message_type')
@@ -69,7 +99,4 @@ class DialogText(_CoreWidget):
                                     with_first_skip=True)
 
         self.text_widget.setText(text)
-        self.text_widget.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
-
-        self.layout().addWidget(self.text_widget)
 

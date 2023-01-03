@@ -50,6 +50,8 @@ class CustomTelegramClient:
         self.client = TelegramClient('session_name', int(api_id), api_hash)
         self.client.start()
 
+        self.load_handlers()
+
     def run_forever(self):
         # return
         self.loop.run_forever()
@@ -57,6 +59,9 @@ class CustomTelegramClient:
     def recreate_loop(self):
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
+
+    def load_handlers(self):
+        self.client.on(events.NewMessage)(self.update_messages)         # load handler on new message
 
     def async_function():
         """
@@ -127,6 +132,30 @@ class CustomTelegramClient:
 
     def add_to_downloads(self, message: Message, path: str, speed: int):
         self.media_to_download.append(DownloadFile(path, message, speed))
+
+    # async def make_read_message(self, message: Message):
+        # return await message.mark_read()
+
+    @async_function()
+    async def make_read_message(self, 
+                                dialog,
+                                messages: list[Message]):
+        """
+            Mark read all messages which opened
+            :TODO: make messages read which present on screen
+        """
+
+        return await self.client.send_read_acknowledge(dialog, messages)
+
+    # @events.register(events.NewMessage('test'))        # event handler doesn't work =(
+    async def update_messages(self, 
+                              event: events.newmessage.NewMessage.Event):
+        """
+            Get new messages and refresh it in gui
+        """
+        self.dialog_update_handler(dialog=await event.get_chat(),
+                                   message=event.message,
+                                   dialog_id=event.chat_id)
 
 
 client: CustomTelegramClient = None

@@ -38,3 +38,7 @@
   border-radius: 160%;
   /* border-image: url('/static/video_message/704369002/37084.jpg'); */
 }
+
+#input_field {
+  /* margin-left: 10px; */
+}

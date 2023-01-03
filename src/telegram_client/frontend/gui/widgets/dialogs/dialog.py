@@ -8,6 +8,7 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from telethon.tl.custom import dialog
 from telethon.tl.custom.dialog import Dialog as TTDialog
+from telethon.tl.patched import Message
 from telethon.tl.types import User
 from telethon.tl.types.messages import PeerDialogs
 from src.config import ACTIVE_DIALOG_NAME, AVATAR_HEIGHT_IN_DIALOG, AVATAR_WEIGHT_IN_DIALOG, AVATARS_FOLDER_PATH, DIALOG_NAME, DIALOG_WIDGET_HEIGHT, DIALOG_WIDGET_WIDTH, MAIN_WIDGET_HEIGHT, MAIN_WIDGET_WIDTH
@@ -79,6 +80,20 @@ class Dialog(_CoreWidget):
 
     def add_dialog_text(self):
         self.dialog_text = DialogText(self, 
-                                      dialog=self.dialog)
+                                      dialog=self.dialog,
+                                      user=self.user)
         self.inner_layout.addWidget(self.dialog_text)
+
+    def update_data(self, message: Message):
+        # self.change_title(message=d)
+        self.change_text(message=message)
+
+    def change_title(self, dialog: TTDialog):
+        self.dialog_title.change_title(dialog=dialog)
+
+    def change_text(self, message: Message):
+        self.dialog_text.set_new_text(message=message)
+
+    def clear_unread_status(self):
+        self.dialog_title.clear_unread_status()
 

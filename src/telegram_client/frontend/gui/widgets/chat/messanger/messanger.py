@@ -74,12 +74,6 @@ class Messanger(_CoreWidget,
         self.load_messages_from_back()
         self.add_new_messages_to_gui()
 
-        # self.add_avatar()
-        #
-        # self.add_layout_for_title_and_status()
-        # self.add_title()
-        # self.add_last_online_status()
-
     def load_messages_from_back(self):
         self.messages = get_messages(chat_id=self.dialog.id)
 
@@ -95,8 +89,6 @@ class Messanger(_CoreWidget,
         else:
 
             for widget in self.gui_messages:
-                # if widget.video_widget:
-                #     widget.delete_video_widget()
                 widget.deleteLater()
 
             self.gui_messages.clear()
@@ -116,8 +108,13 @@ class Messanger(_CoreWidget,
 
     def add_new_messages_to_gui(self):
         self.prepare_to_output_messages()
+        messages_to_read = []
 
         for msg_number, message in enumerate(self.messages[::-1]):
             self.add_new_message(msg_number=msg_number,
                                  message=message)
-            
+            messages_to_read.append(message)
+        
+        client.make_read_message(dialog=self.dialog, 
+                                 messages=messages_to_read)
+
