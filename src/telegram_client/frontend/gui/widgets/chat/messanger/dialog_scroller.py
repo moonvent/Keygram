@@ -11,6 +11,8 @@ class DialogScroller:
     visited_dialogs: dict[Dialog, tuple[int, int]] = None       # need tuple with two int, 
                                                                 # first it's a last watched state, second it's max, cause 
                                                                 # after changing the dialogs need to reset maximum
+
+    conversation_state: bool = True                             # if user message with someone :TODO: make search mode
     
     def recover_scroll(self, 
                        old_dialog):
@@ -26,8 +28,10 @@ class DialogScroller:
         """
             Add new dialog to list of visited dialogs
         """
-        self.vertical_scroll.setValue(self.vertical_scroll.maximum())
-        self.visited_dialogs[new_dialog] = [self.vertical_scroll.value(), self.vertical_scroll.maximum()]
+        maximum = 100_000
+        self.vertical_scroll.setRange(0, maximum)   # cause scroll behavior is straight
+        self.vertical_scroll.setValue(maximum)
+        self.visited_dialogs[new_dialog] = [self.vertical_scroll.value(), maximum]
 
     def save_dialog_scroll_value(self, 
                                  old_dialog: Dialog):

@@ -37,7 +37,6 @@ class MainWindow(_CoreWidget):
 
         self.load_styles()
 
-
     def set_layout(self):
         self.widget_layout = QHBoxLayout(self)
         self.setLayout(self.widget_layout)

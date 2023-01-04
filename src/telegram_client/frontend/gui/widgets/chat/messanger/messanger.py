@@ -4,10 +4,12 @@
 import asyncio
 from random import choice, randint
 from threading import Thread
+import threading
+import time
 from PySide6 import QtGui
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QGridLayout, QLayout, QScrollArea, QScrollBar, QSizePolicy, QVBoxLayout, QLabel, QPushButton, QWidget
-from PySide6.QtCore import QRect, QSize, Qt
+from PySide6.QtCore import QRect, QSize, QThread, Qt, Signal
 from telethon.tl.custom import dialog
 from telethon.tl.patched import Message as TMessage
 from telethon.tl.types import Dialog, User
@@ -18,6 +20,17 @@ from src.telegram_client.backend.client_init import client
 from src.telegram_client.backend.chat.messages import get_messages
 from src.telegram_client.frontend.gui.widgets.chat.messanger.dialog_scroller import DialogScroller
 from src.telegram_client.frontend.gui.widgets.chat.messanger.message import Message
+
+
+class MessageUpdater(QThread):
+    get_message_signal = Signal(tuple)
+
+    def run(self) -> None:
+        while True:
+            if client.new_messages:
+                self.get_message_signal.emit(client.new_messages.pop(0))
+            time.sleep(0.5)
+
 
 
 class Messanger(_CoreWidget, 
@@ -32,6 +45,8 @@ class Messanger(_CoreWidget,
 
     messages: list[TMessage] = None
     gui_messages: list = None
+
+    message_updater: MessageUpdater = None
     
     def __init__(self, 
                  parent,
@@ -39,6 +54,12 @@ class Messanger(_CoreWidget,
         self.user = user
         self.visited_dialogs = {}
         super().__init__(parent)
+        self.load_message_updater()
+
+    def load_message_updater(self):
+        self.message_updater = MessageUpdater()
+        self.message_updater.get_message_signal.connect(self.update_current_dialog)
+        self.message_updater.start()
 
     @property
     def dialog(self):
@@ -52,13 +73,11 @@ class Messanger(_CoreWidget,
         dialog = self._dialog = value
         self.load_new_dialog()
 
+        # print(self.vertical_scroll.maximum())
         if dialog not in self.visited_dialogs:
             self.set_scroll(new_dialog=dialog)
         else:
             self.recover_scroll(old_dialog=dialog)
-
-        Thread(target=client.download_all_media, 
-               daemon=True).start()
 
     def set_layout(self):
         self.widget_layout = QGridLayout(self)
@@ -69,6 +88,7 @@ class Messanger(_CoreWidget,
     def load_ui(self):
         self.set_layout()
         self.setObjectName('messanger')
+        client.update_current_dialog = self.update_current_dialog
 
     def load_new_dialog(self):
         self.load_messages_from_back()
@@ -94,17 +114,18 @@ class Messanger(_CoreWidget,
             self.gui_messages.clear()
 
     def add_new_message(self, msg_number: int, message: TMessage):
+
         message = Message(self,
                           message=message,
                           user=self.user,
                           dialog=self.dialog,
                           msg_number=msg_number)
         self.gui_messages.append(message)
+        column = 1 + (1 if message.message.sender_id == self.user.id else -1)
+
         self.layout().addWidget(message, 
                                 msg_number, 
-                                1 + (1 if message.message.sender_id == self.user.id else -1)
-                                )
-
+                                column)
 
     def add_new_messages_to_gui(self):
         self.prepare_to_output_messages()
@@ -118,3 +139,16 @@ class Messanger(_CoreWidget,
         client.make_read_message(dialog=self.dialog, 
                                  messages=messages_to_read)
 
+    def update_current_dialog(self, msg_data: tuple[Dialog, Message, int]):
+        dialog, message, dialog_id = msg_data
+        if self.dialog.id != dialog_id:
+            return
+
+        new_index_of_message = len(self.gui_messages)
+        self.add_new_message(msg_number=new_index_of_message,
+                             message=message)
+
+        if self.conversation_state:
+            self.vertical_scroll.setRange(0, self.vertical_scroll.maximum() + 100_000)
+            self.vertical_scroll.setValue(self.vertical_scroll.maximum())
+        

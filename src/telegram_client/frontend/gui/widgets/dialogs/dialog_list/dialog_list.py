@@ -92,8 +92,8 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
     @chat.setter
     def chat(self, chat):
         self._chat = chat
-        if not self._chat.dialog:
-            self.chat.dialog = self.active_dialog.dialog
+        # if not self._chat.dialog:
+        self.chat.dialog = self.active_dialog.dialog
 
     @property
     def active_dialog(self):

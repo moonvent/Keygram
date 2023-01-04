@@ -44,10 +44,10 @@ VIDEO_MESSAGE_PATH = os.path.join(STATIC_FOLDER_PATH, VIDEO_MESSAGE_NAME)
 
 check_exists_folder(path=VIDEO_MESSAGE_PATH)
 
-VOICE_FROM_VIDEO_NAME = 'temp_voices_from_videos'
-VOICE_FROM_VIDEO_NAME_PATH = os.path.join(VIDEO_MESSAGE_PATH, VOICE_FROM_VIDEO_NAME)
-
-check_exists_folder(path=VOICE_FROM_VIDEO_NAME_PATH)
+# VOICE_FROM_VIDEO_NAME = 'temp_voices_from_videos'
+# VOICE_FROM_VIDEO_NAME_PATH = os.path.join(VIDEO_MESSAGE_PATH, VOICE_FROM_VIDEO_NAME)
+#
+# check_exists_folder(path=VOICE_FROM_VIDEO_NAME_PATH)
 
 
 AVATARS_FOLDER_NAME = 'avatars'

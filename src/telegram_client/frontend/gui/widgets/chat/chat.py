@@ -61,4 +61,3 @@ class Chat(_CoreWidget):
         self.info_menu.dialog = value
         self.messanger.dialog = value
 
-
