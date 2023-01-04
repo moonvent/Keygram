@@ -98,15 +98,15 @@ class Message(_CoreWidget):
         send_date = datetime.fromtimestamp(int(self.message.date.timestamp()), 
                                            ZoneInfo(tzname[0]))
 
-        self.date_label.setText(send_date.strftime('%H:%M'))
+        self.date_label.setText(send_date.strftime('%H:%M:%S'))
 
         if self.message.sender_id == self.user.id:
             index_in_layout = 2
-            fixed_width = 40
+            fixed_width = 57        # for min 40
 
         else:
             index_in_layout = 0
-            fixed_width = 35
+            fixed_width = 52        # for min 35
 
         self.date_label.setFixedWidth(fixed_width)
         self.layout().addWidget(self.date_label, 1, index_in_layout)

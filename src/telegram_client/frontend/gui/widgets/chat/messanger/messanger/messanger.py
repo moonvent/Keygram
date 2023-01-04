@@ -20,6 +20,8 @@ from src.telegram_client.backend.client_init import client
 from src.telegram_client.backend.chat.messages import get_messages
 from src.telegram_client.frontend.gui.widgets.chat.messanger.dialog_scroller import DialogScroller
 from src.telegram_client.frontend.gui.widgets.chat.messanger.message import Message
+from src.telegram_client.frontend.gui.widgets.chat.messanger.input_field.input_field import InputField
+from src.telegram_client.frontend.gui.widgets.chat.messanger.messanger.keyboard import MessangerKeyboard
 
 
 class MessageUpdater(QThread):
@@ -34,7 +36,9 @@ class MessageUpdater(QThread):
 
 
 class Messanger(_CoreWidget, 
-                DialogScroller):
+                DialogScroller,
+                MessangerKeyboard
+                ):
     """
         Messanger widget
     """
@@ -47,6 +51,8 @@ class Messanger(_CoreWidget,
     gui_messages: list = None
 
     message_updater: MessageUpdater = None
+
+    input_field: InputField = None
     
     def __init__(self, 
                  parent,
@@ -79,6 +85,10 @@ class Messanger(_CoreWidget,
         else:
             self.recover_scroll(old_dialog=dialog)
 
+        if self.input_field:
+            self.input_field.dialog = dialog
+
+
     def set_layout(self):
         self.widget_layout = QGridLayout(self)
         self.setLayout(self.widget_layout)
@@ -89,6 +99,8 @@ class Messanger(_CoreWidget,
         self.set_layout()
         self.setObjectName('messanger')
         client.update_current_dialog = self.update_current_dialog
+
+        self.set_widget_shortcuts()
 
     def load_new_dialog(self):
         self.load_messages_from_back()

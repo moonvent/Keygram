@@ -6,7 +6,7 @@ import asyncio
 import os
 from threading import Thread
 from typing import Coroutine, NamedTuple
-from telethon.hints import TotalList
+from telethon.hints import Entity, TotalList
 from telethon.tl.patched import Message
 
 from telethon.tl.types import Dialog, User
@@ -160,9 +160,15 @@ class CustomTelegramClient:
                     message=event.message,
                     dialog_id=event.chat_id)
         self.dialog_update_handler(**args)
-        # self.update_current_dialog(**args)
-        # self.new_messages.append(args)
         self.new_messages.append(tuple(args.values()))
+
+    @async_function()
+    async def send_message(self, 
+                           dialog: Entity,
+                           text: str):
+        await self.client.send_message(dialog,
+                                       text,
+                                       background=True)
 
 
 client: CustomTelegramClient = None

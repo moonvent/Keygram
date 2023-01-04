@@ -12,6 +12,8 @@ from src.telegram_client.frontend.gui.widgets.chat.chat import Chat
 from src.telegram_client.frontend.gui.widgets.viewer.viewer import ViewerWidget, generate_viewer, viewer
 import time
 
+from src.telegram_client.frontend.gui.widgets.dialogs.dialog_list.dialog_list import DialogList
+
 
 class MainWindow(_CoreWidget):
     """
@@ -19,7 +21,7 @@ class MainWindow(_CoreWidget):
     """
     user: User = None
 
-    dialogs_list: QWidget = None
+    dialogs_list: DialogList = None
     chat: Chat = None
     viewer: ViewerWidget = None
     
@@ -36,6 +38,8 @@ class MainWindow(_CoreWidget):
         self.load_viewer_vidget()
 
         self.load_styles()
+
+        self.setup_global_keybinds()
 
     def set_layout(self):
         self.widget_layout = QHBoxLayout(self)
@@ -64,4 +68,18 @@ class MainWindow(_CoreWidget):
         self.viewer = viewer
         self.viewer.setParent(self)
         self.layout().addWidget(self.viewer)
+
+    def setup_global_keybinds(self):
+        messanger = self.chat.messanger.messanger
+
+        self.dialogs_list.right_pan = messanger
+
+        self.chat.input_field.up_pan = messanger
+
+        messanger.down_pan = self.chat.input_field
+        messanger.left_pan = self.dialogs_list
+
+        self.chat.input_field.left_pan = self.dialogs_list
+
+        self.dialogs_list.change_pan_shortcuts_state(enable=True)
 

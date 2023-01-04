@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt
 from telethon.tl.types import Dialog, User
 from src.config import DIALOG_SCROLL_WIDTH, DIALOG_WIDGET_WIDTH, MAIN_WIDGET_HEIGHT
 
-from src.telegram_client.frontend.gui.widgets.chat.messanger.messanger import Messanger
+from src.telegram_client.frontend.gui.widgets.chat.messanger.messanger.messanger import Messanger
 
 
 class ScrolledMessanger(QScrollArea):

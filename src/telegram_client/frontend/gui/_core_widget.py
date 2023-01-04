@@ -1,6 +1,7 @@
 from typing import Callable
-from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtGui import QKeySequence, QShortcut, Qt
 from PySide6.QtWidgets import QFrame, QLayout, QWidget
+from src.database.keymaps import Keymaps
 from src.services.database.models.keymaps import get_keybinds
 
 from src.services.frontend.load_all_styles import load_all_styles_file
@@ -40,30 +41,4 @@ class _CoreWidget(QFrame):
         """
         self.setFixedWidth(width)
         self.setFixedHeight(height)
-
-
-class _KeyboardShortcuts:
-    """
-        Widget which provide interface to create shortcuts
-    """
-
-    def set_widget_shortcuts(self):
-        """
-            Setup widget keyboard shortcut
-        """
-        raise NotImplementedError
-
-    def set_keybind_handlers(self, 
-                             keybind_title: str,
-                             method: Callable):
-        """
-            Method for set need keybind to methods
-            :param keybinds: tuple of tuples, where in every tuple will be a few keybinds in str format
-            :param method: a tuple of method for set every tuple in keybinds to this method
-
-            :example: keybins = (('a', 'b'), ('c', 'd')), methods = (self.activate_up, self.activate_button)
-        """
-        for keybind in get_keybinds(title=keybind_title):
-            shortcut = QShortcut(QKeySequence(keybind), self)
-            shortcut.activated.connect(method)
 

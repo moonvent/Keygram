@@ -1,5 +1,5 @@
 """
-    Dectibe dialog list widget
+    Describe dialog list widget
 """
 
 
@@ -15,14 +15,17 @@ from telethon.tl.types import User
 from src.database.keymaps import Keymaps
 from src.services.database.models.keymaps import get_keybinds
 from src.config import ACTIVE_DIALOG_NAME, AMOUNT_DIALOGS_BEFORE_SCROLLABLE_DIALOG, AMOUNT_DIALOGS_IN_HEIGHT, DIALOG_NAME, DIALOG_WIDGET_HEIGHT, MAIN_WIDGET_HEIGHT, DIALOG_SCROLL_WIDTH, DIALOG_WIDGET_WIDTH
-from src.telegram_client.frontend.gui._core_widget import _CoreWidget, _KeyboardShortcuts
+from src.telegram_client.frontend.gui._core_widget import _CoreWidget
+from src.telegram_client.frontend.gui._keyboard_shortcuts import _KeyboardShortcuts
 from src.telegram_client.backend.dialogs.dialogs import get_dialogs
 from src.telegram_client.frontend.gui.widgets.dialogs.dialog import Dialog
 from src.telegram_client.frontend.gui.widgets.chat.chat import Chat
 from src.telegram_client.backend.client_init import client
+from src.telegram_client.frontend.gui.widgets.dialogs.dialog_list.keyboard import DialogListKeyboard
 
 
-class DialogList(_CoreWidget, _KeyboardShortcuts):
+class DialogList(_CoreWidget, 
+                 DialogListKeyboard):
     """
         Dialog list widget, with inner dialogs
     """
@@ -41,6 +44,7 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
 
     def __init__(self, parent, user) -> None:
         self.user = user
+        self.active_pan = True
         super().__init__(parent)
 
     def set_layout(self):
@@ -105,59 +109,4 @@ class DialogList(_CoreWidget, _KeyboardShortcuts):
         gui_dialog.clear_unread_status()
         if self.chat:
             self.chat.dialog = gui_dialog.dialog
-
-    def set_keyboard_shortcuts(self):
-        self.set_keybind_handlers(keybind_title=Keymaps.DOWN_IN_DIALOGS_LIST,
-                                  method=self.activate_chat_below)
-
-        self.set_keybind_handlers(keybind_title=Keymaps.UP_IN_DIALOGS_LIST,
-                                  method=self.activate_chat_above)
-
-    def switch_dialog(func):
-        """
-            Change dialog style and reload it
-        """
-
-        def wrapped(self, *args, **kwargs):
-
-            self.active_dialog.setObjectName(DIALOG_NAME)
-
-            func(self, *args, **kwargs)
-
-            self.active_dialog.setObjectName(ACTIVE_DIALOG_NAME)
-            self.load_styles()
-
-        return wrapped
-
-    @switch_dialog
-    def activate_chat_above(self):
-        active_dialog_index = self.gui_dialogs.index(self.active_dialog)
-
-        if active_dialog_index == 0:        # for infine scroll
-            return
-
-        else:
-            self.active_dialog = self.gui_dialogs[active_dialog_index - 1]
-
-        if active_dialog_index <= self.index_to_continue_scroll_up:
-            self.vertical_scroll.setValue(self.vertical_scroll.value() - DIALOG_WIDGET_HEIGHT)
-            if active_dialog_index != 1:
-                self.index_to_continue_scroll_up -= 1
-                self.index_to_continue_scroll_down -= 1
-        
-    @switch_dialog
-    def activate_chat_below(self):
-        active_dialog_index = self.gui_dialogs.index(self.active_dialog)
-
-        if active_dialog_index == len(self.gui_dialogs) - 1:        # for infine scroll
-            return
-            
-        else:
-            self.active_dialog = self.gui_dialogs[active_dialog_index + 1]
-
-        if active_dialog_index >= self.index_to_continue_scroll_down:
-            self.vertical_scroll.setValue(self.vertical_scroll.value() + DIALOG_WIDGET_HEIGHT)
-            if (len(self.gui_dialogs) - 2) != active_dialog_index:
-                self.index_to_continue_scroll_down += 1
-                self.index_to_continue_scroll_up += 1
 
