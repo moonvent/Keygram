@@ -140,6 +140,9 @@ MESSAGES_FONT_SIZE = 15
 
 FONT_NAME = 'Helvetica'
 
+SELECTED_MESSANGE_CSS_CLASS = 'selected_message'
+NOT_SELECTED_MESSANGE_CSS_CLASS = 'not_selected_message'
+
 """
     Media viewer widget
 """

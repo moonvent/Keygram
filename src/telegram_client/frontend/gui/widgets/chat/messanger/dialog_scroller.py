@@ -41,3 +41,16 @@ class DialogScroller:
         if old_dialog:
             self.visited_dialogs[old_dialog.id] = [self.vertical_scroll.value(), self.vertical_scroll.maximum()]
 
+    def change_scroll_for_new_dialog(self):
+        """
+            Change scroll position for new dialog
+        """
+
+        dialog = self.dialog
+
+        if dialog.id not in self.visited_dialogs:
+            self.set_scroll(new_dialog=dialog)
+        else:
+            self.recover_scroll(old_dialog=dialog)
+
+

@@ -1,4 +1,5 @@
 import asyncio
+from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QHBoxLayout, QWidget, QScrollArea
 from PySide6.QtCore import Qt
 from telethon.tl.types import User
@@ -13,9 +14,11 @@ from src.telegram_client.frontend.gui.widgets.viewer.viewer import ViewerWidget,
 import time
 
 from src.telegram_client.frontend.gui.widgets.dialogs.dialog_list.dialog_list import DialogList
+from src.telegram_client.frontend.gui.modes import Modes
 
 
-class MainWindow(_CoreWidget):
+class MainWindow(_CoreWidget,
+                 Modes):
     """
         Main Window gui widget
     """
@@ -40,6 +43,7 @@ class MainWindow(_CoreWidget):
         self.load_styles()
 
         self.setup_global_keybinds()
+        self.switch_to_command_mode()
 
     def set_layout(self):
         self.widget_layout = QHBoxLayout(self)
@@ -82,4 +86,17 @@ class MainWindow(_CoreWidget):
         self.chat.input_field.left_pan = self.dialogs_list
 
         self.dialogs_list.change_pan_shortcuts_state(enable=True)
+
+    def keyPressEvent(self, 
+                      event: QKeyEvent) -> None:
+
+        if event.key() == Qt.Key_Escape:
+            self.switch_to_command_mode()
+            self.chat.messanger.messanger.reset_selection()
+            self.load_styles()
+
+        elif event.key() == Qt.Key_V and self.command_mode:
+            self.switch_to_visual_mode()
+
+        return super().keyPressEvent(event)
 

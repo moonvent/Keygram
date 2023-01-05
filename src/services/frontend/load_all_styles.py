@@ -28,6 +28,6 @@ def load_all_styles_file() -> str:
         :WARNING: all ids of elements MUST BE UNIQ
         :return str: all styles in one string
     """
-    logger.critical('Add check uniq id')
+    # logger.critical('Add check uniq id')
     return read_files(STYLES_FOLDER_PATH).replace('\n', '')
 

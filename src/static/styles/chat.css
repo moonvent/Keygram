@@ -42,3 +42,7 @@
 #input_field {
   /* margin-left: 10px; */
 }
+
+#selected_message {
+  background-color: red;
+}

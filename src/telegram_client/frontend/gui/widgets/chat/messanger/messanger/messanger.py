@@ -8,7 +8,7 @@ import threading
 import time
 from PySide6 import QtGui
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QGridLayout, QLayout, QScrollArea, QScrollBar, QSizePolicy, QVBoxLayout, QLabel, QPushButton, QWidget
+from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QLayout, QScrollArea, QScrollBar, QSizePolicy, QSpacerItem, QVBoxLayout, QLabel, QPushButton, QWidget
 from PySide6.QtCore import QRect, QSize, QThread, Qt, Signal
 from telethon.tl.custom import dialog
 from telethon.tl.patched import Message as TMessage
@@ -56,6 +56,11 @@ class Messanger(_CoreWidget,
     input_field: InputField = None
 
     dialog_gui_messages: dict[int, list[Message]] = {}      # dict for contain all messages with dialog
+
+    current_message_for_visual_index: int = None
+    current_selected_messages: list[int] = None
+
+    main_window: QWidget = None
     
     def __init__(self, 
                  parent,
@@ -63,6 +68,7 @@ class Messanger(_CoreWidget,
         self.user = user
         self.visited_dialogs = {}
         super().__init__(parent)
+        self.current_selected_messages = []
         self.load_message_updater()
 
     def load_message_updater(self):
@@ -82,20 +88,18 @@ class Messanger(_CoreWidget,
         dialog = self._dialog = value
         self.load_new_dialog()
 
-        # print(self.vertical_scroll.maximum())
-        if dialog not in self.visited_dialogs:
-            self.set_scroll(new_dialog=dialog)
-        else:
-            self.recover_scroll(old_dialog=dialog)
+        self.change_scroll_for_new_dialog()
 
         if self.input_field:
             self.input_field.dialog = dialog
 
 
     def set_layout(self):
-        self.widget_layout = QGridLayout(self)
+        # self.widget_layout = QGridLayout(self)
+        self.widget_layout = QVBoxLayout(self)
         self.setLayout(self.widget_layout)
         self.layout().setContentsMargins(0, 0, 0, 0)
+
         # self.layout().setSpacing(0)
 
     def load_ui(self):
@@ -103,7 +107,7 @@ class Messanger(_CoreWidget,
         self.setObjectName('messanger')
         client.update_current_dialog = self.update_current_dialog
 
-        self.set_widget_shortcuts()
+        self.set_keyboard_shortcuts()
 
     def load_new_dialog(self):
         if self.dialog.id not in self.dialog_gui_messages:
@@ -122,23 +126,12 @@ class Messanger(_CoreWidget,
         """
         if not self.gui_messages:
             self.gui_messages = []
-            for column_number in range(2):
-                self.layout().addWidget(QLabel(self), 0, column_number)
+            # for column_number in range(2):
+                # self.layout().addWidget(QLabel(self), 0, column_number)
 
         else:
-            # old_dialog_id = self.old_dialog.id
-
-            # if old_doalog_id not in self.dialog_gui_messages:
-            #     dgm = self.dialog_gui_messages[old_doalog_id] = []
-            # else:
-            #     dgm = self.dialog_gui_messages[old_doalog_id]
-
             for widget in self.gui_messages:
-                # widget.deleteLater()
                 widget.setParent(None)
-
-                # if widget not in dgm:
-                #     dgm.append(widget)
 
             self.gui_messages.clear()
 
@@ -162,10 +155,24 @@ class Messanger(_CoreWidget,
         self.gui_messages.append(gui_message)
         column = 1 + (1 if gui_message.message.sender_id == self.user.id else -1)
 
-        self.layout().addWidget(gui_message, 
-                                msg_number, 
-                                column)
+        self.current_message_for_visual_index = len(self.gui_messages)
 
+        # self.layout().addWidget(gui_message, 
+        #                         msg_number, 
+        #                         column)
+
+        message_layout = QHBoxLayout(self)
+        self.layout().addLayout(message_layout)
+
+        if gui_message.message.sender_id == self.user.id:
+            message_layout.addStretch()
+         
+        message_layout.addWidget(gui_message)
+
+        if gui_message.message.sender_id != self.user.id:
+            message_layout.addStretch()
+
+        
     def add_new_message(self, msg_number: int, message: TMessage):
         """
             Add message from tg to gui

@@ -14,3 +14,6 @@ class Keymaps(IntEnum):
     TO_UP_PAN = 5
     TO_DOWN_PAN = 6
 
+    DOWN_IN_MESSANGER_LIST = 7
+    UP_IN_MESSANGER_LIST = 8
+

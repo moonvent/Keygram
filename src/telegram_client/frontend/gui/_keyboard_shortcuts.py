@@ -12,7 +12,6 @@ class _KeyboardShortcuts:
         Widget which provide interface to create shortcuts
     """
     active_pan: bool = False
-
     left_pan: QWidget = None
     right_pan: QWidget = None
     up_pan: QWidget = None
@@ -39,7 +38,7 @@ class _KeyboardShortcuts:
                                   method=self.swith_to_down_pan)
 
     def set_keybind_handlers(self, 
-                             keybind_title: str,
+                             keybind_title: int,
                              method: Callable):
         """
             Method for set need keybind to method
@@ -77,17 +76,17 @@ class _KeyboardShortcuts:
 
     @change_pan
     def swith_to_left_pan(self):
-        logger.debug(f'Switch to left pan {self.down_pan}')
+        logger.debug(f'Switch to left pan {self.left_pan}')
         return self.left_pan
 
     @change_pan
     def swith_to_right_pan(self):
-        logger.debug(f'Switch to right pan {self.down_pan}')
+        logger.debug(f'Switch to right pan {self.right_pan}')
         return self.right_pan
 
     @change_pan
     def swith_to_up_pan(self):
-        logger.debug(f'Switch to up pan {self.down_pan}')
+        logger.debug(f'Switch to up pan {self.up_pan}')
         return self.up_pan
 
     @change_pan
