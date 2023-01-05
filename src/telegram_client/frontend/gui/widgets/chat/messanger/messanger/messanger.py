@@ -34,7 +34,6 @@ class MessageUpdater(QThread):
             time.sleep(0.5)
 
 
-
 class Messanger(_CoreWidget, 
                 DialogScroller,
                 MessangerKeyboard
@@ -43,16 +42,20 @@ class Messanger(_CoreWidget,
         Messanger widget
     """
     _dialog: Dialog = None
+    old_dialog: Dialog = None
     user: User = None
 
     dialog_avatar: QLabel = None
 
-    messages: list[TMessage] = None
-    gui_messages: list = None
+    message: list[TMessage] = None                          # messages from telegram
 
-    message_updater: MessageUpdater = None
+    gui_messages: list[Message] = None                      # dict for contain current printed messages
+
+    message_updater: MessageUpdater = None                  # thread for update current open dialog
 
     input_field: InputField = None
+
+    dialog_gui_messages: dict[int, list[Message]] = {}      # dict for contain all messages with dialog
     
     def __init__(self, 
                  parent,
@@ -73,8 +76,8 @@ class Messanger(_CoreWidget,
 
     @dialog.setter
     def dialog(self, value):
-        old_dialog = self._dialog
-        self.save_dialog_scroll_value(old_dialog=old_dialog)
+        self.old_dialog = self._dialog
+        self.save_dialog_scroll_value(old_dialog=self.old_dialog)
 
         dialog = self._dialog = value
         self.load_new_dialog()
@@ -103,8 +106,12 @@ class Messanger(_CoreWidget,
         self.set_widget_shortcuts()
 
     def load_new_dialog(self):
-        self.load_messages_from_back()
-        self.add_new_messages_to_gui()
+        if self.dialog.id not in self.dialog_gui_messages:
+            self.load_messages_from_back()
+            self.add_new_messages_to_gui()
+
+        else:
+            self.add_old_messages_to_gui()
 
     def load_messages_from_back(self):
         self.messages = get_messages(chat_id=self.dialog.id)
@@ -119,48 +126,112 @@ class Messanger(_CoreWidget,
                 self.layout().addWidget(QLabel(self), 0, column_number)
 
         else:
+            # old_dialog_id = self.old_dialog.id
+
+            # if old_doalog_id not in self.dialog_gui_messages:
+            #     dgm = self.dialog_gui_messages[old_doalog_id] = []
+            # else:
+            #     dgm = self.dialog_gui_messages[old_doalog_id]
 
             for widget in self.gui_messages:
-                widget.deleteLater()
+                # widget.deleteLater()
+                widget.setParent(None)
+
+                # if widget not in dgm:
+                #     dgm.append(widget)
 
             self.gui_messages.clear()
 
-    def add_new_message(self, msg_number: int, message: TMessage):
+    def convert_tg_to_gui_message(self, 
+                                  msg_number: int, 
+                                  message: TMessage,
+                                  dialog: Dialog = None) -> Message:
+        """
+            Convert tg message to gui message
+        """
+        return Message(self,
+                       message=message,
+                       user=self.user,
+                       dialog=self.dialog if not dialog else dialog,
+                       msg_number=msg_number)
 
-        message = Message(self,
-                          message=message,
-                          user=self.user,
-                          dialog=self.dialog,
-                          msg_number=msg_number)
-        self.gui_messages.append(message)
-        column = 1 + (1 if message.message.sender_id == self.user.id else -1)
+    def add_gui_message_to_layout(self, msg_number: int, gui_message: Message):
+        """
+            Add gui message to layout
+        """
+        self.gui_messages.append(gui_message)
+        column = 1 + (1 if gui_message.message.sender_id == self.user.id else -1)
 
-        self.layout().addWidget(message, 
+        self.layout().addWidget(gui_message, 
                                 msg_number, 
                                 column)
 
+    def add_new_message(self, msg_number: int, message: TMessage):
+        """
+            Add message from tg to gui
+        """
+        gui_message = self.convert_tg_to_gui_message(msg_number=msg_number,
+                                                     message=message)
+        self.add_gui_message_to_layout(msg_number=msg_number, gui_message=gui_message)
+        return gui_message
+
+    def add_new_gui_message_to_cache(self, gui_message: Message, dialog_id: int):
+        """
+            Add new gui message to cache dictionary
+        """
+        if dialog_id not in self.dialog_gui_messages:
+            dgm = self.dialog_gui_messages[dialog_id] = []
+        else:
+            dgm = self.dialog_gui_messages[dialog_id]
+
+        # if gui_message not in dgm:
+        dgm.append(gui_message)
+
     def add_new_messages_to_gui(self):
+        """
+            Add to gui messages from telegram
+        """
         self.prepare_to_output_messages()
         messages_to_read = []
 
         for msg_number, message in enumerate(self.messages[::-1]):
-            self.add_new_message(msg_number=msg_number,
-                                 message=message)
+            gui_message = self.add_new_message(msg_number=msg_number,
+                                               message=message)
+            self.add_new_gui_message_to_cache(gui_message=gui_message,
+                                              dialog_id=self.dialog.id)
             messages_to_read.append(message)
         
         client.make_read_message(dialog=self.dialog, 
                                  messages=messages_to_read)
 
-    def update_current_dialog(self, msg_data: tuple[Dialog, Message, int]):
+    def add_old_messages_to_gui(self):
+        """
+            Add cached messages to gui (if exists new message in conversation, it's alredy be in list)
+        """
+        self.prepare_to_output_messages()
+        for msg_number, gui_message in enumerate(self.dialog_gui_messages[self.dialog.id]):
+            self.add_gui_message_to_layout(msg_number=msg_number,
+                                           gui_message=gui_message)
+
+    def update_current_dialog(self, msg_data: tuple[Dialog, TMessage, int]):
+        """
+            Add cathed in work time message to dialog 
+        """
         dialog, message, dialog_id = msg_data
-        if self.dialog.id != dialog_id:
-            return
 
-        new_index_of_message = len(self.gui_messages)
-        self.add_new_message(msg_number=new_index_of_message,
-                             message=message)
+        if dialog_messages := self.dialog_gui_messages.get(dialog_id):
+            msg_number = len(self.gui_messages)
+            gui_message = self.convert_tg_to_gui_message(msg_number=msg_number,
+                                                         message=message,
+                                                         dialog=dialog)
+            dialog_messages.append(gui_message)
 
-        if self.conversation_state:
-            self.vertical_scroll.setRange(0, self.vertical_scroll.maximum() + 100_000)
-            self.vertical_scroll.setValue(self.vertical_scroll.maximum())
+            if self.dialog.id == dialog_id:
+                self.add_gui_message_to_layout(msg_number=msg_number,
+                                               gui_message=gui_message)
+                client.mark_read_one_message(message=message)
+
+                if self.conversation_state:
+                    self.vertical_scroll.setRange(0, self.vertical_scroll.maximum() + 100_000)
+                    self.vertical_scroll.setValue(self.vertical_scroll.maximum())
         

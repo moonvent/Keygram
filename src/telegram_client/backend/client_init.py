@@ -170,6 +170,10 @@ class CustomTelegramClient:
                                        text,
                                        background=True)
 
+    @async_function()
+    async def mark_read_one_message(self, message: Message):
+        await message.mark_read()
+
 
 client: CustomTelegramClient = None
 

@@ -69,6 +69,8 @@ class Message(_CoreWidget):
 
             if self.message.sender_id == self.user.id:
                 sender = self.user
+            elif isinstance(self.dialog, User):
+                sender = self.dialog.first_name
             else:
                 sender = self.dialog.name
 

@@ -61,8 +61,8 @@ class DialogList(_CoreWidget,
         client.dialog_update_handler = self.dialog_update_handler
 
     def dialog_update_handler(self, dialog, message: Message, dialog_id: int):
-        gui_dialog: Dialog = self.gui_dialogs_with_id[dialog_id]
-        gui_dialog.update_data(message=message)
+        if gui_dialog := self.gui_dialogs_with_id.get(dialog_id):
+            gui_dialog.update_data(message=message)
 
     def load_dialogs_in_ui(self):
         self.load_dialogs_from_telegram()

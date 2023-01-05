@@ -68,7 +68,8 @@ class DialogText(_CoreWidget):
             else:
                 nickname = self.message.sender.first_name
 
-            text += f'<u>{nickname}</u>: '
+            if nickname != self.user.first_name:
+                text += f'<u>{nickname}</u>: '
 
         if self.message.video_note:
             text += _('video_message')

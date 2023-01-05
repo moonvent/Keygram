@@ -1,5 +1,6 @@
 import PySide6
 from PySide6.QtCore import QEvent, QObject, Qt
+from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QTextEdit
 from telethon.tl.custom import Dialog
 from src.config import INPUT_FIELD_HEIGHT
@@ -41,14 +42,19 @@ class InputField(_CoreWidget,
         self.line_edit.installEventFilter(self)
         self.layout().addWidget(self.line_edit)
 
-    def eventFilter(self, 
-                    watched: QObject, 
-                    event: QEvent) -> bool:
-        if event.type() == QEvent.KeyPress and watched is self.line_edit:
-            if event.key() == Qt.Key_Return and self.line_edit.hasFocus():
-                self.send_message()
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if event.key() == Qt.Key_Return and self.line_edit.hasFocus():
+            self.send_message()
+        return super().keyPressEvent(event)
 
-        return super().eventFilter(watched, event)
+    # def eventFilter(self, 
+    #                 watched: QObject, 
+    #                 event: QEvent) -> bool:
+    #     if event.type() == QEvent.KeyPress and watched is self.line_edit:
+    #         if event.key() == Qt.Key_Return and self.line_edit.hasFocus():
+    #             self.send_message()
+    #
+    #     return super().eventFilter(watched, event)
 
     def send_message(self):
         text = self.line_edit.toPlainText()
