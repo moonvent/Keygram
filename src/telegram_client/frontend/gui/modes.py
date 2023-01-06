@@ -15,6 +15,11 @@ class Modes:
         self.visual_mode = False
         self.command_mode = True
         self.insert_mode = False
+        self.reset_selecting_in_messanger()
+
+    def reset_selecting_in_messanger(self):
+        self.chat.messanger.messanger.reset_selection()
+        self.load_styles()
 
     def switch_to_visual_mode(self):
         logger.debug('Switch to visual mode')

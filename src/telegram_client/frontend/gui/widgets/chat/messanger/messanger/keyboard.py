@@ -30,10 +30,12 @@ class MessangerKeyboard(_KeyboardShortcuts):
         self.select_direction = self.old_select_index = None
 
         for message in self.current_selected_messages:
+            if message == self.gui_messages[self.current_message_for_visual_index]:
+                continue
             message.setObjectName(NOT_SELECTED_MESSANGE_CSS_CLASS)
 
         self.current_selected_messages.clear()
-        self.current_message_for_visual_index = len(self.gui_messages)
+        # self.current_message_for_visual_index = len(self.gui_messages)
 
     def paint_all_row(self, css_class: str, need_to_paint_index: int = None):
         if need_to_paint_index:
@@ -71,6 +73,22 @@ class MessangerKeyboard(_KeyboardShortcuts):
             self.paint_all_row(css_class=NOT_SELECTED_MESSANGE_CSS_CLASS, 
                                need_to_paint_index=message_index)
 
+    def start_selecting_new_messages(self, swap_direction: bool = False):
+        if not self.current_selected_messages or swap_direction:
+            # if start select messages
+            self.add_to_selected(message_index=self.old_select_index)
+
+            if swap_direction:
+                if self.current_message_for_visual_index > self.old_select_index:
+                    self.current_message_for_visual_index = self.old_select_index
+                    self.old_select_index -= 1
+                else:
+                    self.current_message_for_visual_index = self.old_select_index
+                    self.old_select_index += 1
+
+        if not swap_direction:
+            self.add_to_selected(message_index=self.current_message_for_visual_index)
+
     def work_with_selection(self):
         """
             Work with select or deselect item, IF IN VISUAL MODE ONLY
@@ -84,10 +102,16 @@ class MessangerKeyboard(_KeyboardShortcuts):
                 else:
                     self.select_direction = DOWN_DIRECTION
 
-            if (self.select_direction == UP_DIRECTION and self.current_message_for_visual_index < self.old_select_index) or (self.select_direction == DOWN_DIRECTION and self.current_message_for_visual_index > self.old_select_index):
-                if not self.current_selected_messages:
-                    self.add_to_selected(message_index=self.old_select_index)
-                self.add_to_selected(message_index=self.current_message_for_visual_index)
+            if (self.select_direction == UP_DIRECTION and self.current_message_for_visual_index < self.old_select_index) or \
+                    (self.select_direction == DOWN_DIRECTION and self.current_message_for_visual_index > self.old_select_index):
+                self.start_selecting_new_messages()
+
+            elif (self.select_direction == DOWN_DIRECTION and self.current_message_for_visual_index < self.old_select_index and not(self.current_selected_messages)) or \
+                    (self.select_direction == UP_DIRECTION and self.current_message_for_visual_index > self.old_select_index and not(self.current_selected_messages)):
+                
+                self.select_direction = UP_DIRECTION if self.select_direction == DOWN_DIRECTION else DOWN_DIRECTION
+                self.start_selecting_new_messages(swap_direction=True)
+
             else:
                 self.remove_from_selected(message_index=self.old_select_index, 
                                           from_list_too=True)

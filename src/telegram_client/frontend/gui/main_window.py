@@ -90,13 +90,15 @@ class MainWindow(_CoreWidget,
     def keyPressEvent(self, 
                       event: QKeyEvent) -> None:
 
-        if event.key() == Qt.Key_Escape:
-            self.switch_to_command_mode()
-            self.chat.messanger.messanger.reset_selection()
-            self.load_styles()
+        match event.key():
+            case Qt.Key_Escape:
+                self.switch_to_command_mode()
 
-        elif event.key() == Qt.Key_V and self.command_mode:
-            self.switch_to_visual_mode()
+            case Qt.Key_V:
+                if self.command_mode:
+                    self.switch_to_visual_mode()
+                elif self.visual_mode:
+                    self.switch_to_command_mode()
 
         return super().keyPressEvent(event)
 
