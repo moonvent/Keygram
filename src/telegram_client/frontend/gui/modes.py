@@ -1,6 +1,8 @@
 """
     Describe mode service
 """
+from PySide6.QtGui import QKeyEvent
+from PySide6.QtCore import Qt
 from src.services.logging.setup_logger import logger
 
 

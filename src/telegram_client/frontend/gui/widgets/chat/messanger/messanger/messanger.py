@@ -67,6 +67,7 @@ class Messanger(_CoreWidget,
                  user) -> None:
         self.user = user
         self.visited_dialogs = {}
+        self.main_window = parent.parent()
         super().__init__(parent)
         self.current_selected_messages = []
         self.load_message_updater()

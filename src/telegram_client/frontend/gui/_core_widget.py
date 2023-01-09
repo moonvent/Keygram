@@ -11,7 +11,7 @@ class _CoreWidget(QFrame):
     """
         Core widget, with need methods which need be override
     """
-    widget_layout: QLayout = None
+    main_window: QWidget = None
 
     def __init__(self, 
                  parent) -> None:

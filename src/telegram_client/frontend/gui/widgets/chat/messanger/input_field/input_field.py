@@ -1,13 +1,14 @@
 import PySide6
 from PySide6.QtCore import QEvent, QObject, Qt
 from PySide6.QtGui import QKeyEvent
-from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QTextEdit
+from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QTextEdit, QWidget
 from telethon.tl.custom import Dialog
 from src.config import INPUT_FIELD_HEIGHT
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.services.load_internalization import _
 from src.telegram_client.backend.client_init import client
 from src.telegram_client.frontend.gui.widgets.chat.messanger.input_field.keyboard import InputFieldKeyboard
+from src.telegram_client.frontend.gui.widgets.chat.messanger.input_field.vim_edit_widget import VimWidget
 
 
 class InputField(_CoreWidget,
@@ -15,8 +16,13 @@ class InputField(_CoreWidget,
     """
         Input widget
     """
-    line_edit: QTextEdit = None
+    vim_editor: VimWidget = None
     dialog: Dialog = None
+    main_window: QWidget = None
+
+    def __init__(self, parent) -> None:
+        self.main_window = parent.parent()
+        super().__init__(parent)
 
     def set_layout(self):
         self.setLayout(QHBoxLayout(self))
@@ -28,37 +34,28 @@ class InputField(_CoreWidget,
         self.setFixedHeight(INPUT_FIELD_HEIGHT)
         self.setObjectName('input_field')
 
-        self.add_line_edit()
+        self.add_vim_editor()
 
-        self.set_widget_shortcuts()
+        self.set_keyboard_shortcuts()
 
-    def add_line_edit(self):
-        self.line_edit = QTextEdit(self)
-        self.line_edit.setPlaceholderText(_('write_message'))
-        self.line_edit.setObjectName('input_field')
-        self.line_edit.setFixedHeight(INPUT_FIELD_HEIGHT)
-        self.line_edit.setCursorWidth(100)
-        # self.line_edit.setTextMargins(20, 0, 0, 0)
-        self.line_edit.installEventFilter(self)
-        self.layout().addWidget(self.line_edit)
-
-    def keyPressEvent(self, event: QKeyEvent) -> None:
-        if event.key() == Qt.Key_Return and self.line_edit.hasFocus():
-            self.send_message()
-        return super().keyPressEvent(event)
-
-    # def eventFilter(self, 
-    #                 watched: QObject, 
-    #                 event: QEvent) -> bool:
-    #     if event.type() == QEvent.KeyPress and watched is self.line_edit:
-    #         if event.key() == Qt.Key_Return and self.line_edit.hasFocus():
-    #             self.send_message()
-    #
-    #     return super().eventFilter(watched, event)
+    def add_vim_editor(self):
+        self.vim_editor = VimWidget(self)
+        # self.vim_editor.installEventFilter(self)
+        self.layout().addWidget(self.vim_editor)
 
     def send_message(self):
-        text = self.line_edit.toPlainText()
-        self.line_edit.clear()
+        text = self.vim_editor.toPlainText()
+        self.vim_editor.clear()
         client.send_message(self.dialog.id, 
                             text)
+
+    def activate(self):
+        self.main_window.active_pan = self
+        self.vim_editor.setFocus()
+        self.vim_editor.setReadOnly(False)
+        self.vim_editor.insert_mode = True
+
+    def activate_command_mode(self):
+        self.vim_editor.command_mode = True
+        self.vim_editor.insert_mode = False
 

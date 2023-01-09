@@ -38,16 +38,15 @@ class MessangerKeyboard(_KeyboardShortcuts):
         # self.current_message_for_visual_index = len(self.gui_messages)
 
     def paint_all_row(self, css_class: str, need_to_paint_index: int = None):
+        """
+            Paint selected message in need class
+            :param css_class: 
+        """
         if need_to_paint_index:
             gui_message = self.gui_messages[need_to_paint_index]
         else:
             gui_message = self.gui_messages[self.current_message_for_visual_index]
         gui_message.setObjectName(css_class)
-
-        # for i in range(3):
-        #     item = self.layout().itemAtPosition(self.current_message_for_visual_index, i)
-        #     item.setObjectName(css_class)
-
 
     def add_to_selected(self, message_index: int):
         """
@@ -144,36 +143,10 @@ class MessangerKeyboard(_KeyboardShortcuts):
         if self.current_message_for_visual_index > 0:
             self.old_select_index = self.current_message_for_visual_index
             self.current_message_for_visual_index -= 1
-        # active_dialog_index = self.gui_dialogs.index(self.active_dialog)
-        #
-        # if active_dialog_index == 0:        # for infine scroll
-        #     return
-        #
-        # else:
-        #     self.active_dialog = self.gui_dialogs[active_dialog_index - 1]
-        #
-        # if active_dialog_index <= self.index_to_continue_scroll_up:
-        #     self.vertical_scroll.setValue(self.vertical_scroll.value() - DIALOG_WIDGET_HEIGHT)
-        #     if active_dialog_index != 1:
-        #         self.index_to_continue_scroll_up -= 1
-        #         self.index_to_continue_scroll_down -= 1
         
     @switch_message
     def activate_message_below(self):
         if self.current_message_for_visual_index < (len(self.gui_messages) - 1):
             self.old_select_index = self.current_message_for_visual_index
             self.current_message_for_visual_index += 1
-        # active_dialog_index = self.gui_dialogs.index(self.active_dialog)
-        #
-        # if active_dialog_index == len(self.gui_dialogs) - 1:        # for infine scroll
-        #     return
-        #     
-        # else:
-        #     self.active_dialog = self.gui_dialogs[active_dialog_index + 1]
-        #
-        # if active_dialog_index >= self.index_to_continue_scroll_down:
-        #     self.vertical_scroll.setValue(self.vertical_scroll.value() + DIALOG_WIDGET_HEIGHT)
-        #     if (len(self.gui_dialogs) - 2) != active_dialog_index:
-        #         self.index_to_continue_scroll_down += 1
-        #         self.index_to_continue_scroll_up += 1
 

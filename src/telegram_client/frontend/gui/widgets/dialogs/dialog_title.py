@@ -4,13 +4,14 @@
 
 from datetime import datetime, timedelta
 from PySide6 import QtCore
+from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from telethon.tl.custom import dialog
 from telethon.tl.custom.dialog import Dialog as TTDialog
 from telethon.tl.patched import Message
 from telethon.tl.types import User
 from src.services.frontend.gui.widgets.dialogs.dialog_cut import cut_text_for_dialogs
-from src.config import AMOUNT_SYMBOLS_FOR_CUTTING_MESSAGE_TEXT, AMOUNT_SYMBOLS_FOR_CUTTING_TITLE, AMOUNT_UNREAD_MARK, LENGTH_TITLE
+from src.config import AMOUNT_SYMBOLS_FOR_CUTTING_MESSAGE_TEXT, AMOUNT_SYMBOLS_FOR_CUTTING_TITLE, AMOUNT_UNREAD_MARK, DIALOG_FONT_SIZE_TITLE, LENGTH_TITLE
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.services.load_internalization import _
 from zoneinfo import ZoneInfo
@@ -73,6 +74,7 @@ class DialogTitle(_CoreWidget):
     def add_pinned_status(self):
         if not self.pinned_status:
             self.pinned_status = QLabel(self)
+            self.pinned_status.setFont(self.get_dialog_title_font())
 
         if self.dialog.pinned:
             self.pinned_status.setText(_('pinned'))
@@ -84,6 +86,7 @@ class DialogTitle(_CoreWidget):
 
         if not self.dialog_type:
             self.dialog_type = QLabel(self)
+            self.dialog_type.setFont(self.get_dialog_title_font())
             self.layout().addWidget(self.dialog_type)
 
         if self.dialog.is_user:
@@ -104,6 +107,7 @@ class DialogTitle(_CoreWidget):
     def add_title(self):
         if not self.title:
             self.title = QLabel(self)
+            self.title.setFont(self.get_dialog_title_font())
             self.layout().addWidget(self.title)
         
         title = cut_text_for_dialogs(text=self.dialog.title, 
@@ -115,6 +119,7 @@ class DialogTitle(_CoreWidget):
     def add_muted(self):
         if not self.muted:
             self.muted = QLabel(self)
+            self.muted.setFont(self.get_dialog_title_font())
             self.layout().addWidget(self.muted)
 
         mute_date = self.dialog.dialog.notify_settings.mute_until
@@ -131,6 +136,7 @@ class DialogTitle(_CoreWidget):
         if self.dialog.dialog.unread_mark or self.dialog.unread_count:
             if not self.amount_unreads:
                 self.amount_unreads = QLabel(self)
+                self.amount_unreads.setFont(self.get_dialog_title_font())
                 self.layout().addWidget(self.amount_unreads)
 
             self.amount_unreads.setObjectName('dialog_unread')
@@ -154,6 +160,7 @@ class DialogTitle(_CoreWidget):
 
             if not self.seen_status:
                 self.seen_status = QLabel(self)
+                self.seen_status.setFont(self.get_dialog_title_font())
                 self.layout().addWidget(self.seen_status)
 
             if self.dialog.message.id <= self.dialog.dialog.read_outbox_max_id:
@@ -174,6 +181,7 @@ class DialogTitle(_CoreWidget):
         if self.dialog.date:
             if not self.last_active_time:
                 self.last_active_time = QLabel(self)
+                self.last_active_time.setFont(self.get_dialog_title_font())
                 self.layout().addWidget(self.last_active_time)
 
             message_date = self.dialog.date.date()
@@ -204,3 +212,9 @@ class DialogTitle(_CoreWidget):
     def clear_unread_status(self):
         if self.amount_unreads:
             self.amount_unreads.setVisible(False)
+
+    def get_dialog_title_font(self):
+        font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        font.setPointSizeF(DIALOG_FONT_SIZE_TITLE)
+        return font
+

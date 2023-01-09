@@ -1,7 +1,7 @@
 """
     One message object describe
 """
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGridLayout, QLabel
 from src.services.logging.setup_logger import logger
@@ -121,12 +121,15 @@ class Message(_CoreWidget):
 
     def add_text(self):
         tl = self.text_label = QLabel(self)
-        font = QFont(FONT_NAME)
-        font_size = MESSAGES_FONT_SIZE
-
-        font.setPointSize(font_size)
-
+        # font = QFont(FONT_NAME)
+        # font_size = MESSAGES_FONT_SIZE
+        #
+        # font.setPointSize(font_size)
+        
+        font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        font.setPointSizeF(15)
         tl.setFont(font)
+        # tl.setFont(font)
         tl.setObjectName(MESSAGE_NAME)
         tl.setText(self.message.text)
         tl.setWordWrap(True)

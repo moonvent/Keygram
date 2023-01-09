@@ -55,23 +55,12 @@ class _KeyboardShortcuts:
             shortcut.setEnabled(False)
             self.shortcuts.append(shortcut)
 
-    def swith_to_other_pan(self):
-        """
-            Setup switching to others pan
-        """
-        raise NotImplemented
-
     def change_pan(func):
         def wrapper(self, *args, **kwargs):
-            self.change_pan_shortcuts_state(False)
 
             pan = func(self, *args, **kwargs)
-            
-            if pan:
-                pan.change_pan_shortcuts_state(True)
-            else:
-                self.change_pan_shortcuts_state(True)
-
+            pan.main_window.active_pan = pan
+        
         return wrapper
 
     @change_pan

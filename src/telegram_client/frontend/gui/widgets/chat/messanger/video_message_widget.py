@@ -19,7 +19,6 @@ from PySide6.QtMultimediaWidgets import QVideoWidget
 from threading import Thread
 from src.telegram_client.backend.client_init import client
 from src.telegram_client.frontend.gui.widgets.viewer.viewer import ViewerWidget, viewer, generate_viewer
-from src.services.frontend.gui.widgets.chat.messanger.video_widget import message_with_media_to_load
 
 
 class VideoMessageWidget(_CoreWidget):

@@ -42,9 +42,12 @@ class DialogList(_CoreWidget,
 
     _chat: Chat = None
 
+    main_window: QWidget = None
+
     def __init__(self, parent, user) -> None:
         self.user = user
         self.active_pan = True
+        self.main_window = parent
         super().__init__(parent)
 
     def set_layout(self):

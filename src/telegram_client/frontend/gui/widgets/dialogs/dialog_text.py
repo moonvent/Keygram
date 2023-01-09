@@ -1,9 +1,10 @@
 from PySide6 import QtCore
+from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from telethon.tl.patched import Message
 from telethon.tl.types import Channel, User
 from src.services.frontend.gui.widgets.dialogs.dialog_cut import cut_text_for_dialogs
-from src.config import AMOUNT_SYMBOLS_FOR_CUTTING_MESSAGE_TEXT
+from src.config import AMOUNT_SYMBOLS_FOR_CUTTING_MESSAGE_TEXT, DIALOG_FONT_SIZE_TEXT, DIALOG_FONT_SIZE_TITLE, FONT_SIZE
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.services.load_internalization import _
 from telethon.tl.custom.dialog import Dialog
@@ -46,6 +47,11 @@ class DialogText(_CoreWidget):
         """
         if not self.text_widget:
             self.text_widget = QLabel(self)
+
+            font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+            font.setPointSizeF(DIALOG_FONT_SIZE_TEXT)
+
+            self.text_widget.setFont(font)
             self.text_widget.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
             self.layout().addWidget(self.text_widget)
 
