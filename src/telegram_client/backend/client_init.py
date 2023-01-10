@@ -200,6 +200,13 @@ class CustomTelegramClient(DownloadMethods,
                                        text,
                                        background=True)
 
+    @async_function()
+    async def save_draft(self, 
+                         dialog: Dialog,
+                         text: str):
+        await dialog.draft.set_message(text=text)
+
+
 
 client: CustomTelegramClient = None
 

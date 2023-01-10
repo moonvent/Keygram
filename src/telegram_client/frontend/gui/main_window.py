@@ -81,6 +81,7 @@ class MainWindow(_CoreWidget,
         self.scrollable_dialog_list.chat = self.chat
 
     def load_me(self):
+        # client.save_draft()
         self.user = client.get_me()
 
     def load_viewer_vidget(self):

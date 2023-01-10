@@ -94,7 +94,6 @@ class Messanger(_CoreWidget,
         if self.input_field:
             self.input_field.dialog = dialog
 
-
     def set_layout(self):
         # self.widget_layout = QGridLayout(self)
         self.widget_layout = QVBoxLayout(self)

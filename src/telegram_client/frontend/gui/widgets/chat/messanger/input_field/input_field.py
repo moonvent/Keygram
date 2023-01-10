@@ -17,7 +17,7 @@ class InputField(_CoreWidget,
         Input widget
     """
     vim_editor: VimWidget = None
-    dialog: Dialog = None
+    _dialog: Dialog = None
     main_window: QWidget = None
 
     def __init__(self, parent) -> None:
@@ -44,7 +44,7 @@ class InputField(_CoreWidget,
         self.layout().addWidget(self.vim_editor)
 
     def send_message(self):
-        text = self.vim_editor.toPlainText()
+        text = self.vim_editor.text()
         self.vim_editor.clear()
         client.send_message(self.dialog.id, 
                             text)
@@ -58,4 +58,25 @@ class InputField(_CoreWidget,
     def activate_command_mode(self):
         self.vim_editor.command_mode = True
         self.vim_editor.insert_mode = False
+
+    @property
+    def dialog(self):
+        return self._dialog
+
+    @dialog.setter
+    def dialog(self, value):
+        self.save_draft()
+        self._dialog = value
+        self.add_draft_to_textedit(new_dialog=value)
+
+    def add_draft_to_textedit(self, new_dialog: Dialog):
+        if text := new_dialog.draft.text:
+            self.vim_editor.setText(text)
+
+    def save_draft(self):
+        text = self.vim_editor.text()
+        if self._dialog and text:
+            client.save_draft(dialog=self._dialog,
+                              text=text)
+            self.vim_editor.clear()
 

@@ -102,3 +102,6 @@ msgstr "Статус скрыт"
 
 msgid "write_message"
 msgstr "Введи сообщение"
+
+msgid "draft"
+msgstr "Черновик"

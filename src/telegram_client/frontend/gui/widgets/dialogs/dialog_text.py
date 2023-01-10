@@ -101,6 +101,9 @@ class DialogText(_CoreWidget):
         # elif self.dialog.message.photo and self.dialog.message.photo.grouped_id:
         #     text = _('group_media_message')
 
+        if draft_text := self.dialog.draft.text:
+            text = f"<font color='orange'>{_('draft')}:</font> {draft_text}"
+
         text = cut_text_for_dialogs(text=text, 
                                     max_length=AMOUNT_SYMBOLS_FOR_CUTTING_MESSAGE_TEXT,
                                     with_first_skip=True)

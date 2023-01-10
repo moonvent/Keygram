@@ -59,6 +59,12 @@ class VimWidget(QTextEdit,
         self.setup_keybind()
         # self.set_keyboard_shortcuts() # doesn't work here
 
+    def text(self):
+        """
+            For mor understandable coding
+        """
+        return self.toPlainText()
+
     def set_writable_font(self):
         font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         font.setPointSizeF(FONT_SIZE)
