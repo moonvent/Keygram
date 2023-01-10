@@ -36,3 +36,5 @@ class Keymaps(IntEnum):
     ESCAPE = 21
     RETURN = 22
 
+    TO_VISUAL_MODE_IN_INSERT_FIELD = 23
+

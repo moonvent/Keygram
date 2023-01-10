@@ -18,9 +18,6 @@ class Keybinds:
         Class for create keybinds list for vim editor
     """
 
-    # def __init__(self) -> None:
-    #     self.load_vim_keybinds()
-
     def get_binds_from_db(self, keymap: Keymaps) -> tuple[str, ...]:
         return get_keybinds(title=keymap)
 
@@ -30,23 +27,6 @@ class Keybinds:
     def create_qt_bind(self, keymap: Keymaps) -> tuple[QKeySequence, ...]:
         binds = get_keybinds(title=keymap)
         return self.pack_in_keysequence(binds=binds)
-
-    # def load_vim_keybinds(self):
-    #     self.BACK_OF_WORD = self.create_qt_bind(keymap=Keymaps.BACK_OF_WORD)
-    #     self.START_OF_WORD = self.create_qt_bind(keymap=Keymaps.START_OF_WORD)
-    #
-    #     self.FORWARD_OF_WORD = self.create_qt_bind(keymap=Keymaps.FORWARD_OF_WORD)
-    #     self.END_OF_WORD = self.create_qt_bind(keymap=Keymaps.END_OF_WORD)
-    #
-    #     self.LEFT_ON_SYM = self.create_qt_bind(keymap=Keymaps.LEFT_ON_SYM)
-    #     self.RIGHT_ON_SYM = self.create_qt_bind(keymap=Keymaps.RIGHT_ON_SYM)
-    #     self.UP_ON_STRING = self.create_qt_bind(keymap=Keymaps.UP_ON_STRING)
-    #     self.DOWN_ON_STRING = self.create_qt_bind(keymap=Keymaps.DOWN_ON_STRING)
-    #
-    #     self.INSERT_IN_CURRENT_SYM = self.create_qt_bind(keymap=Keymaps.INSERT_IN_CURRENT_SYM)
-    #     self.INSERT_IN_NEXT_SYM = self.create_qt_bind(keymap=Keymaps.INSERT_IN_NEXT_SYM)
-    #     self.INSERT_IN_START = self.create_qt_bind(keymap=Keymaps.INSERT_IN_START)
-    #     self.INSERT_IN_END = self.create_qt_bind(keymap=Keymaps.INSERT_IN_END)
 
 
 class InsertType(IntEnum):
@@ -63,6 +43,8 @@ class VimWidget(QTextEdit,
     insert_mode: bool = False
 
     binds_with_methods: dict[QKeySequence, Callable] = None         # dict, key - shortcut, value - method
+
+    # start_selection_pos: int = None
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -92,6 +74,11 @@ class VimWidget(QTextEdit,
         self.command_mode = True
         self.visual_mode = False
 
+    def switch_to_visual_mode(self):
+        self.insert_mode = False
+        self.command_mode = False
+        self.visual_mode = True
+
     def eventFilter(self, 
                     watched: QObject, 
                     event: QEvent) -> bool:
@@ -104,8 +91,8 @@ class VimWidget(QTextEdit,
 
     def setup_keybind(self):
         setup_keybinds_dict = {
-                # Keymaps.RETURN: self.send_message,
-                # Keymaps.ESCAPE: self.switch_to_command_mode_from_insert,
+                Keymaps.RETURN: self.send_message,
+                Keymaps.ESCAPE: self.switch_to_command_mode_from_insert,
 
                 Keymaps.BACK_OF_WORD: self.move_to_back_of_word,
                 Keymaps.START_OF_WORD: self.move_to_start_of_word,
@@ -123,6 +110,7 @@ class VimWidget(QTextEdit,
                 Keymaps.INSERT_IN_START: functools.partial(self.again_in_insert_mode, InsertType.StartOfString),
                 Keymaps.INSERT_IN_END: functools.partial(self.again_in_insert_mode, InsertType.EndOfString),
 
+                Keymaps.TO_VISUAL_MODE_IN_INSERT_FIELD: self.to_visual_in_insert_field,
                 }
 
         self.binds_with_methods = {}
@@ -140,97 +128,43 @@ class VimWidget(QTextEdit,
         """
         pressed_key = QKeySequence(event.keyCombination())
 
-        match pressed_key:
-            case Qt.Key_Escape:
-                self.switch_to_command_mode_from_insert()
-            case Qt.Key_Return:
-                self.send_message()
-            case _:
-                if self.command_mode:
-                    return self.binds_with_methods[pressed_key]()
-
-        # match pressed_key:
-        #     case Qt.Key_Return:
-        #         self.parent().send_message()
-        #
-        #     case Qt.Key_Escape:
-        #         self.switch_to_command_mode_from_insert()
-        #
-        #     case keybind if keybind in self.keybinds.BACK_OF_WORD and self.command_mode:
-        #         self.move_to_back_of_word()
-        #         
-        #     case keybind if keybind in self.keybinds.START_OF_WORD and self.command_mode:
-        #         self.move_to_start_of_word()
-        #
-        #     case keybind if keybind in self.keybinds.FORWARD_OF_WORD and self.command_mode:
-        #         self.move_to_forward_of_word()
-        #         
-        #     case keybind if keybind in self.keybinds.END_OF_WORD and self.command_mode:
-        #         self.move_to_end_of_word()
-        #
-        #     case keybind if keybind in self.keybinds.LEFT_ON_SYM and self.command_mode:
-        #         self.custom_move_cursor(direction=QTextCursor.MoveOperation.Left,
-        #                                 amount_sym=1)
-        #         
-        #     case keybind if keybind in self.keybinds.RIGHT_ON_SYM and self.command_mode:
-        #         self.custom_move_cursor(direction=QTextCursor.MoveOperation.Right,
-        #                                 amount_sym=1)
-        #
-        #     case keybind if keybind in self.keybinds.UP_ON_STRING and self.command_mode:
-        #         self.custom_move_cursor(direction=QTextCursor.MoveOperation.Up,
-        #                                 amount_sym=1)
-        #         
-        #     case keybind if keybind in self.keybinds.DOWN_ON_STRING and self.command_mode:
-        #         self.custom_move_cursor(direction=QTextCursor.MoveOperation.Down,
-        #                                 amount_sym=1)
-        #
-        #     case keybind if keybind in self.keybinds.INSERT_IN_START and self.command_mode:
-        #         self.again_in_insert_mode(to_position=InsertType.StartOfString)
-        #         return True         # signal for not print I
-        #
-        #     case keybind if keybind in self.keybinds.INSERT_IN_CURRENT_SYM and self.command_mode:
-        #         self.again_in_insert_mode(to_position=InsertType.CurrentSymbol)
-        #         return True         # signal for not print I
-        #
-        #     case keybind if keybind in self.keybinds.INSERT_IN_END and self.command_mode:
-        #         self.again_in_insert_mode(to_position=InsertType.EndOfString)
-        #         return True         # signal for not print I
-        #
-        #     case keybind if keybind in self.keybinds.INSERT_IN_NEXT_SYM and self.command_mode:
-        #         self.again_in_insert_mode(to_position=InsertType.NextSymbol)
-        #         return True         # signal for not print I
-        #         
-        #     case _:
-        #         ...
+        if pressed_key in self.binds_with_methods:
+            return self.binds_with_methods[pressed_key]()
 
     def again_in_insert_mode(self,
                              to_position: InsertType = InsertType.CurrentSymbol):
-        self.setReadOnly(False)
-        self.switch_to_insert_mode()
-        self.setCursorWidth(1)
+        if self.command_mode:
+            self.setReadOnly(False)
+            self.switch_to_insert_mode()
+            self.setCursorWidth(1)
 
-        match to_position:
-            case to_position.NextSymbol:
-                self.custom_move_cursor(direction=QTextCursor.MoveOperation.Right,
-                                        amount_sym=1)
+            match to_position:
+                case to_position.NextSymbol:
+                    self.custom_move_cursor(direction=QTextCursor.MoveOperation.Right,
+                                            amount_sym=1)
 
-            case to_position.StartOfString:
-                self.custom_move_cursor(direction=QTextCursor.MoveOperation.Left,
-                                        amount_sym=self.textCursor().position()
-                                        )
+                case to_position.StartOfString:
+                    self.custom_move_cursor(direction=QTextCursor.MoveOperation.Left,
+                                            amount_sym=self.textCursor().position()
+                                            )
 
-            case to_position.EndOfString:
-                self.custom_move_cursor(direction=QTextCursor.MoveOperation.Right,
-                                        amount_sym=len(self.toPlainText()) - self.textCursor().position()
-                                        )
+                case to_position.EndOfString:
+                    self.custom_move_cursor(direction=QTextCursor.MoveOperation.Right,
+                                            amount_sym=len(self.toPlainText()) - self.textCursor().position()
+                                            )
 
-        return True
+            return True
 
     def switch_to_command_mode_from_insert(self):
-        self.setReadOnly(True)
-        self.setCursorWidth(CURSOR_SIZE)
-        self.setTextInteractionFlags(self.textInteractionFlags() | Qt.TextSelectableByKeyboard)
-        self.switch_to_command_mode()
+        if self.visual_mode:
+            self.clear_selection()
+            self.switch_to_command_mode()
+
+        elif self.insert_mode:
+            self.setReadOnly(True)
+            self.setCursorWidth(CURSOR_SIZE)
+            self.setTextInteractionFlags(self.textInteractionFlags() | Qt.TextSelectableByKeyboard)
+            self.switch_to_command_mode()
 
     def custom_move_cursor(self, 
                            direction: QTextCursor.MoveOperation, 
@@ -238,37 +172,51 @@ class VimWidget(QTextEdit,
         """
             Custom move cursor method for DRY
         """
-        cursor = self.textCursor()
-        cursor.movePosition(direction, 
-                            n=amount_sym)
-        self.setTextCursor(cursor)
+        if not self.insert_mode:
+            cursor = self.textCursor()
+            cursor.movePosition(direction, 
+                                QTextCursor.MoveMode.KeepAnchor if self.visual_mode else QTextCursor.MoveMode.MoveAnchor,
+                                n=amount_sym,
+                                )
+            self.setTextCursor(cursor)
 
     def move_to_back_of_word(self):
-        text = self.toPlainText()[:self.textCursor().position()]
-        amount_sym_to_left = len(re.search(r'(\b|\S)\w*\s*$', text).group())
+        if not self.insert_mode:
+            text = self.toPlainText()[:self.textCursor().position()]
+            amount_sym_to_left = len(re.search(r'(\b|\S)\w*\s*$', text).group())
 
-        self.custom_move_cursor(direction=QTextCursor.MoveOperation.Left,
-                                amount_sym=amount_sym_to_left)
+            self.custom_move_cursor(direction=QTextCursor.MoveOperation.Left,
+                                    amount_sym=amount_sym_to_left)
 
 
     def move_to_start_of_word(self):
-        text = self.toPlainText()[:self.textCursor().position()]
-        amount_sym_to_left = len(re.search(r'\w*\s*$', text).group())
+        if not self.insert_mode:
+            text = self.toPlainText()[:self.textCursor().position()]
+            amount_sym_to_left = len(re.search(r'[^\s]*\s*$', text).group())
 
-        self.custom_move_cursor(direction=QTextCursor.MoveOperation.Left,
-                                amount_sym=amount_sym_to_left)
+            self.custom_move_cursor(direction=QTextCursor.MoveOperation.Left,
+                                    amount_sym=amount_sym_to_left)
 
     def move_to_forward_of_word(self):
-        text = self.toPlainText()[self.textCursor().position():]
-        amount_sym_to_left = len(re.search(r'^\s*\w*\b', text).group())
+        if not self.insert_mode:
+            text = self.toPlainText()[self.textCursor().position():]
+            amount_sym_to_left = len(re.search(r'^\s*\w*\b', text).group())
 
-        self.custom_move_cursor(direction=QTextCursor.MoveOperation.Right,
-                                amount_sym=amount_sym_to_left)
+            self.custom_move_cursor(direction=QTextCursor.MoveOperation.Right,
+                                    amount_sym=amount_sym_to_left)
 
     def move_to_end_of_word(self):
-        text = self.toPlainText()[self.textCursor().position():]
-        amount_sym_to_left = len(re.search(r'^\s*\w*[^\s]*', text).group())
+        if not self.insert_mode:
+            text = self.toPlainText()[self.textCursor().position():]
+            amount_sym_to_left = len(re.search(r'^\s*\w*[^\s]*', text).group())
 
-        self.custom_move_cursor(direction=QTextCursor.MoveOperation.Right,
-                                amount_sym=amount_sym_to_left)
+            self.custom_move_cursor(direction=QTextCursor.MoveOperation.Right,
+                                    amount_sym=amount_sym_to_left)
 
+    def to_visual_in_insert_field(self):
+        self.switch_to_visual_mode()
+
+    def clear_selection(self):
+        c = self.textCursor()
+        c.clearSelection()
+        self.setTextCursor(c)
