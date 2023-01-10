@@ -5,7 +5,7 @@
 
 import asyncio
 from typing import List
-from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtGui import QColor, QKeySequence, QPalette, QShortcut
 from PySide6.QtWidgets import QPushButton, QScrollBar, QVBoxLayout, QWidget, QScrollArea
 from PySide6.QtCore import Qt
 from telethon.tl.custom import dialog 
@@ -14,7 +14,7 @@ from telethon.tl.patched import Message
 from telethon.tl.types import User
 from src.database.keymaps import Keymaps
 from src.services.database.models.keymaps import get_keybinds
-from src.config import ACTIVE_DIALOG_NAME, AMOUNT_DIALOGS_BEFORE_SCROLLABLE_DIALOG, AMOUNT_DIALOGS_IN_HEIGHT, DIALOG_NAME, DIALOG_WIDGET_HEIGHT, MAIN_WIDGET_HEIGHT, DIALOG_SCROLL_WIDTH, DIALOG_WIDGET_WIDTH
+from src.config import ACTIVE_DIALOG_NAME, AMOUNT_DIALOGS_BEFORE_SCROLLABLE_DIALOG, AMOUNT_DIALOGS_IN_HEIGHT, DIALOG_ACTIVE_NAME, DIALOG_NAME, DIALOG_WIDGET_HEIGHT, MAIN_WIDGET_HEIGHT, DIALOG_SCROLL_WIDTH, DIALOG_WIDGET_WIDTH
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.telegram_client.frontend.gui._keyboard_shortcuts import _KeyboardShortcuts
 from src.telegram_client.backend.dialogs.dialogs import get_dialogs
@@ -58,6 +58,7 @@ class DialogList(_CoreWidget,
 
     def load_ui(self):
         self.set_layout()
+        self.setObjectName(DIALOG_ACTIVE_NAME)
         self.load_dialogs_in_ui()
         self.set_keyboard_shortcuts()
 

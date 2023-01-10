@@ -72,6 +72,8 @@ check_exists_folder(path=STYLES_FOLDER_PATH,
 """
 
 
+BRIGHTNESS_NOT_ACTIVE_COEF = .2
+
 APP_NAME_WITH_SPACES = 'Keygram'
 APP_NAME_WITHOUT_SPACES = 'Keygram'
 
@@ -81,6 +83,11 @@ MAIN_WIDGET_HEIGHT = 1080
 #
 # Work with dialogs constants
 #
+
+
+DIALOG_ACTIVE_NAME = 'dialog_list__active'
+DIALOG_NOT_ACTIVE_NAME = 'dialog_list__not_active'
+
 
 DIALOG_FONT_SIZE_TEXT = 15
 DIALOG_FONT_SIZE_TITLE = 15

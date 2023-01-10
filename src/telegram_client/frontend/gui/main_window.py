@@ -1,4 +1,5 @@
 import asyncio
+from typing import Literal
 from PySide6.QtGui import QFontDatabase, QKeyEvent
 from PySide6.QtWidgets import QHBoxLayout, QWidget, QScrollArea
 from PySide6.QtCore import Qt
@@ -42,10 +43,26 @@ class MainWindow(_CoreWidget,
             self.pan_before_insert = self._active_pan
             self._active_pan.change_pan_shortcuts_state(enable=False)
 
+        if self._active_pan:
+            self.change_object_name_for_styling(custom_object=self._active_pan,
+                                                state='not_active')
+
         self._active_pan = new_active_pan
 
+        self.change_object_name_for_styling(custom_object=self._active_pan,
+                                            state='active')
+
         self._active_pan.change_pan_shortcuts_state(enable=True)
+
+        self.load_styles()
     
+    def change_object_name_for_styling(self, 
+                                       custom_object: QWidget, 
+                                       state: Literal['active', 'not_active']):
+        old_object_name = self._active_pan.objectName()
+        new_object_name = old_object_name[:old_object_name.rfind('__') + 2] + state
+        custom_object.setObjectName(new_object_name)
+
     def load_ui(self):
 
         self.set_fixed_size(MAIN_WIDGET_WIDTH, MAIN_WIDGET_HEIGHT)

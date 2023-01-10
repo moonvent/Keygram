@@ -38,3 +38,12 @@
   background-color: darkgreen;
 }
 
+
+#dialog_list__active {
+  background-color: rgb(50, 50, 50);
+}
+
+
+#dialog_list__not_active {
+  background-color: rgb(10, 10, 10);
+}
