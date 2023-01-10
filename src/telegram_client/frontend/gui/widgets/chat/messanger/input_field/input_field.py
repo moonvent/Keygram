@@ -8,7 +8,7 @@ from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.services.load_internalization import _
 from src.telegram_client.backend.client_init import client
 from src.telegram_client.frontend.gui.widgets.chat.messanger.input_field.keyboard import InputFieldKeyboard
-from src.telegram_client.frontend.gui.widgets.chat.messanger.input_field.vim_edit_widget import VimWidget
+from src.telegram_client.frontend.gui.widgets.chat.messanger.input_field.vim_widget.vim_edit_widget import VimWidget
 
 
 class InputField(_CoreWidget,
@@ -75,8 +75,19 @@ class InputField(_CoreWidget,
 
     def save_draft(self):
         text = self.vim_editor.text()
-        if self._dialog and text:
-            client.save_draft(dialog=self._dialog,
-                              text=text)
-            self.vim_editor.clear()
+
+        if self._dialog:
+
+            if text:
+                # if appear new draft
+                client.save_draft(dialog=self._dialog,
+                                  text=text)
+                self.vim_editor.clear()
+
+            elif self._dialog.draft.text:
+                # if was draft but now it's not exist
+                client.save_draft(dialog=self._dialog,
+                                  text='')
+
+
 

@@ -38,3 +38,11 @@ class Keymaps(IntEnum):
 
     TO_VISUAL_MODE_IN_INSERT_FIELD = 23
 
+    CUT_SELECTED = 24
+    REMOVE_ONE_SYM = 25
+
+    COPY_SELECTED = 26
+
+    PASTE_AFTER = 27
+    PASTE_BEFORE = 28
+

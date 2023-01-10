@@ -204,7 +204,10 @@ class CustomTelegramClient(DownloadMethods,
     async def save_draft(self, 
                          dialog: Dialog,
                          text: str):
-        await dialog.draft.set_message(text=text)
+        if text:
+            await dialog.draft.set_message(text=text)
+        else:
+            await dialog.draft.delete()
 
 
 
