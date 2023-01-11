@@ -43,14 +43,14 @@ class MainWindow(_CoreWidget,
             self.pan_before_insert = self._active_pan
             self._active_pan.change_pan_shortcuts_state(enable=False)
 
-        if self._active_pan:
-            self.change_object_name_for_styling(custom_object=self._active_pan,
-                                                state='not_active')
+        # if self._active_pan:
+        #     self.change_object_name_for_styling(custom_object=self._active_pan,
+        #                                         state='not_active')
 
         self._active_pan = new_active_pan
 
-        self.change_object_name_for_styling(custom_object=self._active_pan,
-                                            state='active')
+        # self.change_object_name_for_styling(custom_object=self._active_pan,
+        #                                     state='active')
 
         self._active_pan.change_pan_shortcuts_state(enable=True)
 

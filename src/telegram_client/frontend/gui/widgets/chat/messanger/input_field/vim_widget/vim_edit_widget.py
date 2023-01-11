@@ -93,6 +93,9 @@ class VimWidget(QTextEdit,
                 Keymaps.REMOVE_ONE_SYM: self.remove_one_sym,
                 Keymaps.PASTE_AFTER: self.paste_data_after_sym,
                 Keymaps.PASTE_BEFORE: self.paste_data_before_sym,
+
+                Keymaps.END_OF_STRING: self.move_to_end_of_string,
+                Keymaps.START_OF_STRING: self.move_to_start_of_string,
                 }
 
         self.binds_with_methods = {}
@@ -100,4 +103,4 @@ class VimWidget(QTextEdit,
         for keymap, method in setup_keybinds_dict.items():
             for shortcut in self.create_qt_bind(keymap=keymap):
                 self.binds_with_methods[shortcut] = method
-            
+

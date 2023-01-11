@@ -46,3 +46,6 @@ class Keymaps(IntEnum):
     PASTE_AFTER = 27
     PASTE_BEFORE = 28
 
+    END_OF_STRING = 29
+    START_OF_STRING = 30
+

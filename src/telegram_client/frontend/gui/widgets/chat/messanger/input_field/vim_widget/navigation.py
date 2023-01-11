@@ -68,3 +68,15 @@ class VimNavigation:
             self.custom_move_cursor(direction=QTextCursor.MoveOperation.Right,
                                     amount_sym=amount_sym_to_left)
 
+    def move_to_start_of_string(self):
+        if not self.insert_mode:
+            self.custom_move_cursor(direction=QTextCursor.MoveOperation.Left,
+                                    amount_sym=self.textCursor().position())
+
+    def move_to_end_of_string(self):
+        if not self.insert_mode:
+            c = self.textCursor()
+            
+            self.custom_move_cursor(direction=QTextCursor.MoveOperation.Right,
+                                    amount_sym=len(self.text()) - c.position())
+
