@@ -18,10 +18,12 @@ from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 import os
 from src.telegram_client.backend.client_init import client
 from src.telegram_client.backend.chat.messages import get_messages
-from src.telegram_client.frontend.gui.widgets.chat.messanger.dialog_scroller import DialogScroller
-from src.telegram_client.frontend.gui.widgets.chat.messanger.message import Message
+from src.telegram_client.frontend.gui.widgets.chat.messanger.messanger.dialog_scroller import DialogScroller
+from src.telegram_client.frontend.gui.widgets.chat.messanger.message.message import Message
 from src.telegram_client.frontend.gui.widgets.chat.messanger.input_field.input_field import InputField
 from src.telegram_client.frontend.gui.widgets.chat.messanger.messanger.keyboard import MessangerKeyboard
+from src.services.logging.setup_logger import logger
+from src.telegram_client.frontend.gui.widgets.chat.messanger.messanger.cache_messages import CachedMessages
 
 
 class MessageUpdater(QThread):
@@ -55,7 +57,7 @@ class Messanger(_CoreWidget,
 
     input_field: InputField = None
 
-    dialog_gui_messages: dict[int, list[Message]] = {}      # dict for contain all messages with dialog
+    dialog_gui_messages: dict[int, CachedMessages] = {}      # dict for contain all messages with dialog
 
     current_message_for_visual_index: int = None
     current_selected_messages: list[int] = None
@@ -92,7 +94,12 @@ class Messanger(_CoreWidget,
         self.change_scroll_for_new_dialog()
 
         if self.input_field:
-            self.input_field.dialog = dialog
+            if value.is_channel and not value.is_group and not value.is_user:
+                self.input_field.minimize_field()
+            else:
+                self.input_field.dialog = dialog
+
+        self.load_styles()
 
     def set_layout(self):
         # self.widget_layout = QGridLayout(self)
@@ -187,7 +194,7 @@ class Messanger(_CoreWidget,
             Add new gui message to cache dictionary
         """
         if dialog_id not in self.dialog_gui_messages:
-            dgm = self.dialog_gui_messages[dialog_id] = []
+            dgm = self.dialog_gui_messages[dialog_id] = CachedMessages()
         else:
             dgm = self.dialog_gui_messages[dialog_id]
 
@@ -202,10 +209,18 @@ class Messanger(_CoreWidget,
         messages_to_read = []
 
         for msg_number, message in enumerate(self.messages[::-1]):
-            gui_message = self.add_new_message(msg_number=msg_number,
-                                               message=message)
-            self.add_new_gui_message_to_cache(gui_message=gui_message,
-                                              dialog_id=self.dialog.id)
+            last_message = self.gui_messages and self.gui_messages[-1]
+
+            if message.grouped_id and last_message and message.grouped_id == last_message.message.grouped_id:
+                # if it's a group of media
+                last_message.add_group_media(message=message)
+
+            else:
+                gui_message = self.add_new_message(msg_number=msg_number,
+                                                   message=message)
+                self.add_new_gui_message_to_cache(gui_message=gui_message,
+                                                  dialog_id=self.dialog.id)
+
             messages_to_read.append(message)
         
         client.make_read_message(dialog=self.dialog, 
@@ -216,9 +231,16 @@ class Messanger(_CoreWidget,
             Add cached messages to gui (if exists new message in conversation, it's alredy be in list)
         """
         self.prepare_to_output_messages()
+        messages_to_read = []
+
         for msg_number, gui_message in enumerate(self.dialog_gui_messages[self.dialog.id]):
             self.add_gui_message_to_layout(msg_number=msg_number,
                                            gui_message=gui_message)
+            messages_to_read.append(gui_message.message)
+
+        client.make_read_message(dialog=self.dialog,
+                                 messages=messages_to_read)
+
 
     def update_current_dialog(self, msg_data: tuple[Dialog, TMessage, int]):
         """
@@ -228,17 +250,30 @@ class Messanger(_CoreWidget,
 
         if dialog_messages := self.dialog_gui_messages.get(dialog_id):
             msg_number = len(self.gui_messages)
-            gui_message = self.convert_tg_to_gui_message(msg_number=msg_number,
-                                                         message=message,
-                                                         dialog=dialog)
-            dialog_messages.append(gui_message)
+            last_message = self.gui_messages and self.gui_messages[-1]
 
-            if self.dialog.id == dialog_id:
-                self.add_gui_message_to_layout(msg_number=msg_number,
-                                               gui_message=gui_message)
-                client.mark_read_one_message(message=message)
+            if message.grouped_id and last_message and message.grouped_id == last_message.message.grouped_id:
+                last_message.add_group_media(message=message)
+                
+            else:
+                gui_message = self.convert_tg_to_gui_message(msg_number=msg_number,
+                                                             message=message,
+                                                             dialog=dialog)
+                dialog_messages.append(gui_message)
 
-                if self.conversation_state:
-                    self.vertical_scroll.setRange(0, self.vertical_scroll.maximum() + 100_000)
-                    self.vertical_scroll.setValue(self.vertical_scroll.maximum())
-        
+                self.change_dialog_scroll_after_update(dialog_id=dialog_id)
+
+                if self.dialog.id == dialog_id:
+                    self.add_gui_message_to_layout(msg_number=msg_number,
+                                                   gui_message=gui_message)
+                    client.mark_read_one_message(message=message)
+
+                    if self.conversation_state:
+                        # :TODO: add support group media in active conversation
+                        logger.critical('Add support group media in active conversation')
+                        # if now going active conversation
+
+                        if self.dialog.id == dialog_id:
+                            self.vertical_scroll.setRange(0, self.vertical_scroll.maximum() + 100_000)
+                            self.vertical_scroll.setValue(self.vertical_scroll.maximum())
+

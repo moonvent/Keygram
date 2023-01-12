@@ -38,7 +38,7 @@ class DialogList(_CoreWidget,
     index_to_continue_scroll_up: int = 1        # dialogs index which be ignored for scrolling
     index_to_continue_scroll_down: int = 8      # dialogs index which be ignored for scrolling
 
-    gui_dialogs_with_id: dict[int, TTDialog] = {}
+    gui_dialogs_with_id: dict[int, Dialog] = {}
 
     _chat: Chat = None
 

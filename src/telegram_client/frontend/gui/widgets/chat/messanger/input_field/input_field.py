@@ -64,7 +64,8 @@ class InputField(_CoreWidget,
         return self._dialog
 
     @dialog.setter
-    def dialog(self, value):
+    def dialog(self, value: Dialog):
+        self.vim_editor.setReadOnly(False)
         self.save_draft()
         self._dialog = value
         self.add_draft_to_textedit(new_dialog=value)
@@ -89,5 +90,6 @@ class InputField(_CoreWidget,
                 client.save_draft(dialog=self._dialog,
                                   text='')
 
-
+    def minimize_field(self):
+        self.vim_editor.setReadOnly(True)
 

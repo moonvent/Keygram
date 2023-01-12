@@ -5,8 +5,8 @@ from PySide6.QtWidgets import QVBoxLayout, QPushButton
 from telethon.tl.types import Dialog, User
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.telegram_client.frontend.gui._keyboard_shortcuts import _KeyboardShortcuts
-from src.telegram_client.frontend.gui.widgets.chat.messanger.info_menu import InfoMenu
-from src.telegram_client.frontend.gui.widgets.chat.messanger.scrolled_messanger import ScrolledMessanger
+from src.telegram_client.frontend.gui.widgets.chat.messanger.messanger.info_menu import InfoMenu
+from src.telegram_client.frontend.gui.widgets.chat.messanger.messanger.scrolled_messanger import ScrolledMessanger
 from src.telegram_client.frontend.gui.widgets.chat.messanger.input_field.input_field import InputField
 
 
@@ -59,7 +59,7 @@ class Chat(_CoreWidget,
         return self._dialog
 
     @dialog.setter
-    def dialog(self, value):
+    def dialog(self, value: Dialog):
         self._dialog = value
         self.info_menu.dialog = value
         self.messanger.dialog = value

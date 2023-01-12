@@ -133,24 +133,20 @@ class DialogTitle(_CoreWidget):
         self.muted.setFixedWidth(20)
 
     def add_amount_unread(self):
-        if self.dialog.dialog.unread_mark or self.dialog.unread_count:
-            if not self.amount_unreads:
-                self.amount_unreads = QLabel(self)
-                self.amount_unreads.setFont(self.get_dialog_title_font())
-                self.layout().addWidget(self.amount_unreads)
-
+        if not self.amount_unreads:
+            self.amount_unreads = QLabel(self)
+            self.amount_unreads.setFont(self.get_dialog_title_font())
             self.amount_unreads.setObjectName('dialog_unread')
-            if self.dialog.unread_count:
-                self.amount_unreads.setText(str(self.dialog.unread_count))
-
             self.amount_unreads.setAlignment(QtCore.Qt.AlignCenter)
             self.amount_unreads.setFixedSize(AMOUNT_UNREAD_MARK, AMOUNT_UNREAD_MARK)
+            self.layout().addWidget(self.amount_unreads)
+
+        if self.dialog.dialog.unread_mark or self.dialog.unread_count:
+            self.amount_unreads.setText(str(self.dialog.unread_count))
             self.amount_unreads.setVisible(True)
 
         else:
-            # if was unread and now read
-            if self.amount_unreads:
-                self.amount_unreads.setVisible(False)
+            self.amount_unreads.setVisible(False)
 
     def add_seen_status(self):
         if self.user.id == self.dialog.id:
@@ -217,4 +213,11 @@ class DialogTitle(_CoreWidget):
         font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         font.setPointSizeF(DIALOG_FONT_SIZE_TITLE)
         return font
+
+    def change_amount_unread(self):
+        if not self.amount_unreads.isVisible():
+            self.amount_unreads.setText('1')
+            self.amount_unreads.setVisible(True)
+        else:
+            self.amount_unreads.setText(str(int(self.amount_unreads.text()) + 1))
 

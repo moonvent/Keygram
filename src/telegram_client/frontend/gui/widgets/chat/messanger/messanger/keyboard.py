@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QWidget
 from src.config import NOT_SELECTED_MESSANGE_CSS_CLASS, SELECTED_MESSANGE_CSS_CLASS
 from src.database.keymaps import Keymaps
 from src.telegram_client.frontend.gui._keyboard_shortcuts import _KeyboardShortcuts
-from src.telegram_client.frontend.gui.widgets.chat.messanger.message import Message
+from src.telegram_client.frontend.gui.widgets.chat.messanger.message.message import Message
 
 
 UP_DIRECTION = 'up'

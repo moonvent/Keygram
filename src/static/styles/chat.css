@@ -34,7 +34,7 @@
   font-size: 15px;
 }
 
-#thumb_label {
+#thumb_video_label {
   border-radius: 160%;
   /* border-image: url('/static/video_message/704369002/37084.jpg'); */
 }
@@ -45,4 +45,19 @@
 
 #selected_message {
   background-color: red;
+}
+
+#photo_message {
+  background-color: #A3DAE6;
+  border-radius: 5px;
+}
+
+#photo_caption {
+  background-color: #62838A;
+  border-radius: 5px;
+}
+
+#thumb_photo_label {
+  background-color: #62838A;
+  border-radius: 5px;
 }

@@ -101,7 +101,10 @@ msgid "online_status_hidden"
 msgstr "Статус скрыт"
 
 msgid "write_message"
-msgstr "Введи сообщение"
+msgstr "Введи сообщение..."
 
 msgid "draft"
 msgstr "Черновик"
+
+msgid "forwarded_from"
+msgstr "Переслано от: "

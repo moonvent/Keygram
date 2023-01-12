@@ -41,11 +41,15 @@ class DialogListKeyboard(_KeyboardShortcuts):
         else:
             self.active_dialog = self.gui_dialogs[active_dialog_index - 1]
 
+        self.scroll_to_up(active_dialog_index=active_dialog_index)
+
+    def scroll_to_up(self, active_dialog_index: int):
         if active_dialog_index <= self.index_to_continue_scroll_up:
             self.vertical_scroll.setValue(self.vertical_scroll.value() - DIALOG_WIDGET_HEIGHT)
             if active_dialog_index != 1:
                 self.index_to_continue_scroll_up -= 1
                 self.index_to_continue_scroll_down -= 1
+
         
     @switch_dialog
     def activate_chat_below(self):
@@ -57,9 +61,13 @@ class DialogListKeyboard(_KeyboardShortcuts):
         else:
             self.active_dialog = self.gui_dialogs[active_dialog_index + 1]
 
+        self.scroll_to_down(active_dialog_index=active_dialog_index)
+
+    def scroll_to_down(self, active_dialog_index: int):
         if active_dialog_index >= self.index_to_continue_scroll_down:
             self.vertical_scroll.setValue(self.vertical_scroll.value() + DIALOG_WIDGET_HEIGHT)
             if (len(self.gui_dialogs) - 2) != active_dialog_index:
                 self.index_to_continue_scroll_down += 1
                 self.index_to_continue_scroll_up += 1
+
 

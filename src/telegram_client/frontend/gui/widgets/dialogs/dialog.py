@@ -11,7 +11,7 @@ from telethon.tl.custom.dialog import Dialog as TTDialog
 from telethon.tl.patched import Message
 from telethon.tl.types import User
 from telethon.tl.types.messages import PeerDialogs
-from src.config import ACTIVE_DIALOG_NAME, AVATAR_HEIGHT_IN_DIALOG, AVATAR_WEIGHT_IN_DIALOG, AVATARS_FOLDER_PATH, DIALOG_NAME, DIALOG_WIDGET_HEIGHT, DIALOG_WIDGET_WIDTH, MAIN_WIDGET_HEIGHT, MAIN_WIDGET_WIDTH
+from src.config import ACTIVE_DIALOG_NAME, AVATAR_HEIGHT_IN_DIALOG, AVATAR_WEIGHT_IN_DIALOG, AVATARS_FOLDER_PATH, DIALOG_ACTIVE_NAME, DIALOG_NAME, DIALOG_WIDGET_HEIGHT, DIALOG_WIDGET_WIDTH, MAIN_WIDGET_HEIGHT, MAIN_WIDGET_WIDTH
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.services.load_internalization import _
 from src.telegram_client.frontend.gui.widgets.dialogs.dialog_text import DialogText
@@ -85,11 +85,13 @@ class Dialog(_CoreWidget):
         self.inner_layout.addWidget(self.dialog_text)
 
     def update_data(self, message: Message):
-        # self.change_title(message=d)
+        if self.objectName() != ACTIVE_DIALOG_NAME:
+            self.change_title(new_unread_message=True)
         self.change_text(message=message)
 
-    def change_title(self, dialog: TTDialog):
-        self.dialog_title.change_title(dialog=dialog)
+    def change_title(self, new_unread_message: bool = False):
+        if new_unread_message:
+            self.dialog_title.change_amount_unread()
 
     def change_text(self, message: Message):
         self.dialog_text.set_new_text(message=message)

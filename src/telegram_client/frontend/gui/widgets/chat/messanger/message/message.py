@@ -12,8 +12,12 @@ from telethon.tl.patched import Message as TMessage
 from zoneinfo import ZoneInfo
 from datetime import datetime
 from time import tzname
+from src.services.load_internalization import _
 
-from src.telegram_client.frontend.gui.widgets.chat.messanger.video_message_widget import VideoMessageWidget
+from src.telegram_client.frontend.gui.widgets.chat.messanger.message.video_message import VideoMessage
+from src.telegram_client.frontend.gui.widgets.chat.messanger.message.photo_message import PhotoMessage
+from src.telegram_client.frontend.gui.widgets.chat.messanger.message.text_message import TextMessage
+from src.telegram_client.backend.client_init import client
 
 
 class Message(_CoreWidget):
@@ -28,7 +32,8 @@ class Message(_CoreWidget):
     title_label: QLabel = None
     date_label: QLabel = None
     text_label: QLabel = None
-    video_message_widget: VideoMessageWidget = None
+
+    video_message: VideoMessage = None
 
     title: str = None
 
@@ -63,31 +68,47 @@ class Message(_CoreWidget):
             self.add_content()
 
     def add_title(self):
+        # :TODO: need to refactor
+
         self.title_label = QLabel(self)
 
-        if not self.message.sender:
+        if forward := self.message.forward:
 
-            if self.message.sender_id == self.user.id:
-                sender = self.user
-            elif isinstance(self.dialog, User):
-                sender = self.dialog.first_name
+            if chat := forward.chat:
+                forward_from_name = chat.title
+
+            elif name := forward.from_name:
+                forward_from_name = name
+
             else:
-                sender = self.dialog.name
+                forward_from_name = forward.sender.first_name
+
+            self.title = f'<font color="orange">{_("forwarded_from")}</font>' + forward_from_name
 
         else:
-            sender = self.message.sender
+            if not self.message.sender:
 
-        if not isinstance(sender, str):
+                if self.message.sender_id == self.user.id:
+                    sender = self.user
+                elif isinstance(self.dialog, User):
+                    sender = self.dialog.first_name
+                else:
+                    sender = self.dialog.name
 
-            if isinstance(sender, User):
-                self.title = sender.first_name
-            elif self.message.post_author:
-                self.title = self.message.post_author
             else:
-                self.title = sender.title
+                sender = self.message.sender
 
-        else:
-            self.title = sender
+            if not isinstance(sender, str):
+
+                if isinstance(sender, User):
+                    self.title = sender.first_name
+                elif self.message.post_author:
+                    self.title = self.message.post_author
+                else:
+                    self.title = sender.title
+
+            else:
+                self.title = sender
 
         self.title_label.setText(self.title)
         self.layout().addWidget(self.title_label, 0, 1)
@@ -116,31 +137,33 @@ class Message(_CoreWidget):
     def add_content(self):
         if self.message.video_note:
             self.load_video_message()
+
+        elif self.message.photo:
+            self.load_photo_message()
+
         else:
             self.add_text()
 
     def add_text(self):
-        tl = self.text_label = QLabel(self)
-        # font = QFont(FONT_NAME)
-        # font_size = MESSAGES_FONT_SIZE
-        #
-        # font.setPointSize(font_size)
-        
-        font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
-        font.setPointSizeF(15)
-        tl.setFont(font)
-        # tl.setFont(font)
-        tl.setObjectName(MESSAGE_NAME)
-        tl.setText(self.message.text)
-        tl.setWordWrap(True)
-        tl.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        tl.setMargin(5)
-        tl.adjustSize()
-        self.layout().addWidget(tl, 1, 1)
+        if self.message.text:
+            self.text_label = TextMessage(self, 
+                                          user=self.user,
+                                          message=self.message)
+            self.layout().addWidget(self.text_label, 1, 1)
 
     def load_video_message(self):
-        self.video_message_widget = VideoMessageWidget(self,
-                                                       user=self.user,
-                                                       video_message=self.message)
-        self.layout().addWidget(self.video_message_widget, 1, 1)
+        self.video_message = VideoMessage(self,
+                                          user=self.user,
+                                          video_message=self.message)
+        self.layout().addWidget(self.video_message, 1, 1)
+
+    def load_photo_message(self):
+        self.photo_message = PhotoMessage(self,
+                                          user=self.user,
+                                          message=self.message)
+        self.layout().addWidget(self.photo_message, 1, 1)
+
+    def add_group_media(self, message: TMessage):
+        if message.photo:
+            self.photo_message.add_additional_content(message=message)
 

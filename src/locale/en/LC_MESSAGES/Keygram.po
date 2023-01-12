@@ -80,7 +80,10 @@ msgid "online_status_hidden"
 msgstr "Status is hidden"
 
 msgid "write_message"
-msgstr "Write a message"
+msgstr "Write a message..."
 
 msgid "draft"
 msgstr "Draft"
+
+msgid "forwarded_from"
+msgstr "Forwaded from: "

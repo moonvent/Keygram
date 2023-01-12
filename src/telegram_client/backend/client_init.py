@@ -50,7 +50,7 @@ def async_function():
 class DownloadFile(NamedTuple):
     path: str
     message: Message
-    speed: float
+    speed: float = None
 
 
 class DownloadMethods:
@@ -75,7 +75,10 @@ class DownloadMethods:
         if not thumb:
             return await self.client.download_media(message, path)
         else:
-            return await self.client.download_media(message, path, thumb=1)
+            try:
+                return await self.client.download_media(message, path, thumb=1)
+            except:
+                return await self.client.download_media(message, path, thumb=0)
 
     @async_function()
     async def download_all_media(self):
@@ -83,12 +86,16 @@ class DownloadMethods:
             Download all media which exists in queue and fastify it
         """
         while True:
+
             if self.media_to_download:
                 download_file: DownloadFile = self.media_to_download.pop(0)
+
                 if not os.path.exists(download_file.path):
                     await self.client.download_media(download_file.message, download_file.path)
-                    Thread(target=fastify_video, 
-                           args=(download_file.path, download_file.speed)).start()
+
+                    if download_file.speed:
+                        Thread(target=fastify_video, 
+                               args=(download_file.path, download_file.speed)).start()
 
             if not self.check_need_to_load_static():
                 await asyncio.sleep(1)
@@ -99,7 +106,10 @@ class DownloadMethods:
         """
         return any(not os.path.exists(download_file.path) for download_file in self.media_to_download)
 
-    def add_to_downloads(self, message: Message, path: str, speed: int):
+    def add_to_downloads(self, 
+                         message: Message, 
+                         path: str, 
+                         speed: float = None):
         if not path in self.media_to_download_ids:
             self.media_to_download.append(DownloadFile(path, message, speed))
             self.media_to_download_ids.append(path)
@@ -208,7 +218,6 @@ class CustomTelegramClient(DownloadMethods,
             await dialog.draft.set_message(text=text)
         else:
             await dialog.draft.delete()
-
 
 
 client: CustomTelegramClient = None

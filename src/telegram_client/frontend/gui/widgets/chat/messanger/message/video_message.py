@@ -21,7 +21,7 @@ from src.telegram_client.backend.client_init import client
 from src.telegram_client.frontend.gui.widgets.viewer.viewer import ViewerWidget, viewer, generate_viewer
 
 
-class VideoMessageWidget(_CoreWidget):
+class VideoMessage(_CoreWidget):
     user: User = None
     video_message: Message = None
 
@@ -81,7 +81,7 @@ class VideoMessageWidget(_CoreWidget):
         self.thumb_label = QLabel(self)
         # self.thumb_label.setPixmap(thumb_pixmap)
         self.thumb_label.setFixedSize(VIDEO_MESSAGE_THUMB_SIZE, VIDEO_MESSAGE_THUMB_SIZE)
-        self.thumb_label.setObjectName('thumb_label')
+        self.thumb_label.setObjectName('thumb_video_label')
         self.thumb_label.setMargin(20);                                                                                                                   
         self.thumb_label.setStyleSheet(f"border-image: url('{self.path_to_file_thumb}');")
         self.thumb_label.setScaledContents(True);   
