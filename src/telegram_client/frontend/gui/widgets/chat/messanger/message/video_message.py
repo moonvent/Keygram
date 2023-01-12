@@ -28,10 +28,6 @@ class VideoMessage(_CoreWidget):
     path_to_file_mp4: str = None
     path_to_file_thumb: str = None
 
-    # video_player: QMediaPlayer = None
-    # video_output: QVideoWidget = None
-    # audio_output: QAudioOutput = None
-
     thumb_label: QLabel = None
 
     viewer: ViewerWidget = None

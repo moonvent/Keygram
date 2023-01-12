@@ -31,6 +31,8 @@ class Dialog(_CoreWidget):
 
     active_dialog: bool = False
 
+    inner_layout: QVBoxLayout = None
+
     def __init__(self, 
                  parent, 
                  dialog: TTDialog,
@@ -66,11 +68,15 @@ class Dialog(_CoreWidget):
 
     def add_avatar(self):
         self.dialog_avatar = QLabel(self)
+        self.dialog_avatar.setFixedWidth(AVATAR_WEIGHT_IN_DIALOG)
+        self.widget_layout.addWidget(self.dialog_avatar)
+        
+        self.change_avatar_picture()
+
+    def change_avatar_picture(self):
         avatar = QPixmap(os.path.join(AVATARS_FOLDER_PATH, f'{self.dialog.id}.jpg'))
         avatar = avatar.scaled(AVATAR_WEIGHT_IN_DIALOG, AVATAR_HEIGHT_IN_DIALOG)
         self.dialog_avatar.setPixmap(avatar)
-        self.dialog_avatar.setFixedWidth(AVATAR_WEIGHT_IN_DIALOG)
-        self.widget_layout.addWidget(self.dialog_avatar)
 
     def add_dialog_title(self):
         self.dialog_title = DialogTitle(self, 
@@ -86,16 +92,22 @@ class Dialog(_CoreWidget):
 
     def update_data(self, message: Message):
         if self.objectName() != ACTIVE_DIALOG_NAME:
-            self.change_title(new_unread_message=True)
-        self.change_text(message=message)
-
-    def change_title(self, new_unread_message: bool = False):
-        if new_unread_message:
             self.dialog_title.change_amount_unread()
+        self.change_text(message=message)
 
     def change_text(self, message: Message):
         self.dialog_text.set_new_text(message=message)
 
     def clear_unread_status(self):
         self.dialog_title.clear_unread_status()
+
+    def change_dialog(self, new_dialog: TTDialog):
+        self.dialog = dialog
+        self.clear_old_data()
+        self.add_dialog_widgets()
+
+    def clear_old_data(self):
+        self.dialog_title.deleteLater()
+        self.dialog_text.deleteLater()
+        self.inner_layout.deleteLater()
 

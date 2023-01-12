@@ -48,11 +48,6 @@ class PhotoMessage(_CoreWidget):
 
         self.load_content()
 
-        # if self.message.grouped_id:
-        #     if self.parent().parent().dialog_gui_messages[self.parent().dialog.id][-1].message.grouped_id == self.message.grouped_id:
-        #         logger.critical('Add handle exception on indexes')
-        #         ...
-
         self.setup_thumb()
         self.setup_caption()
         # self.setup_video_player()

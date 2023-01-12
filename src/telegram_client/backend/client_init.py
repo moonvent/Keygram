@@ -10,7 +10,7 @@ from telethon.hints import Entity, TotalList
 from telethon.tl.patched import Message
 
 from telethon.tl.types import Dialog, User
-from src.config import SPEED_STEP, SettingsEnum
+from src.config import DIALOGS_LOAD_LIMIT, SPEED_STEP, SettingsEnum
 from src.services.database.models.global_data import get_settings
 from src.services import load_env_vars              # for load env vars from .env file
 import time
@@ -126,9 +126,9 @@ class GetTelegramDataMethods:
         return await self.client.get_me()
 
     @async_function()
-    async def get_dialogs(self, limit: int, offset: int = 0):
-        return await self.client.get_dialogs(limit=limit,
-                                             offset_id=offset)
+    async def get_dialogs(self, 
+                          offset: int = 0):
+        return await self.client.get_dialogs(limit=DIALOGS_LOAD_LIMIT)
 
     @async_function()
     async def get_messages(self, chat_id, limit):
