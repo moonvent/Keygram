@@ -1,14 +1,39 @@
 import os
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QThread, Qt, Signal
 from src.services.logging.setup_logger import logger
 from telethon.tl.patched import Message
 from telethon.tl.types import User
-from src.config import VIDEO_MESSAGE_PATH, VIDEO_MESSAGE_THUMB_SIZE
+from src.config import VIDEO_MESSAGE_PATH, VIDEO_MESSAGE_SIZE, VIDEO_MESSAGE_THUMB_SIZE, VIDEO_OUTPUT_HEIGHT
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
 from src.telegram_client.backend.client_init import client
 from src.telegram_client.frontend.gui.widgets.chat.messanger.message.text_message import TextMessage
+
+
+
+class DownloadPhoto(QThread):
+    signal_to_set_picture: Signal = Signal()
+
+    def __init__(self, 
+                 path_to_thumb,
+                 path_to_file,
+                 message
+                 ) -> None:
+        super().__init__()
+        self.path_to_thumb, self.path_to_file, self.message = path_to_thumb, path_to_file, message
+
+    def run(self) -> None:
+        if not os.path.exists(self.path_to_thumb):
+            client.download_media(message=self.message,
+                                  path=self.path_to_thumb,
+                                  thumb=True)
+
+        if not os.path.exists(self.path_to_file):
+            client.add_to_downloads(message=self.message,
+                                    path=self.path_to_file)
+
+        self.signal_to_set_picture.emit()
 
 
 class PhotoMessage(_CoreWidget):
@@ -26,6 +51,8 @@ class PhotoMessage(_CoreWidget):
     additional_contents: list[tuple[str, str]] = None
 
     media_layout: QVBoxLayout = None
+
+    download_thread: DownloadPhoto = None
 
     def __init__(self, 
                  parent, 
@@ -46,9 +73,9 @@ class PhotoMessage(_CoreWidget):
         self.set_layout()
         self.setObjectName('photo_message')
 
+        self.setup_thumb()
         self.load_content()
 
-        self.setup_thumb()
         self.setup_caption()
         # self.setup_video_player()
 
@@ -60,22 +87,24 @@ class PhotoMessage(_CoreWidget):
         self.path_to_file = path_to_file_without_ext + '_full.jpg'
         # self.path_to_file_with_need_speed = path_to_file_without_ext + '___speed_coef__.mp4'
 
-        if not os.path.exists(self.path_to_thumb):
-            client.download_media(message=self.message,
-                                  path=self.path_to_thumb,
-                                  thumb=True)
-
-        if not os.path.exists(self.path_to_file):
-            client.add_to_downloads(message=self.message,
-                                    path=self.path_to_file)
+        if not os.path.exists(self.path_to_thumb) or not os.path.exists(self.path_to_file):
+            self.download_thread = DownloadPhoto(path_to_thumb=self.path_to_thumb,
+                                                 path_to_file=self.path_to_file,
+                                                 message=self.message)
+            self.download_thread.signal_to_set_picture.connect(self.setup_pixmap)
+            self.download_thread.start()
+            
+        else:
+            self.setup_pixmap()
 
     def setup_thumb(self):
         self.thumb_label = QLabel(self)
-        pixmap = QPixmap(self.path_to_thumb)
+        # pixmap = QPixmap(self.path_to_thumb)
         # pixmap = pixmap.scaled(240, 120, Qt.KeepAspectRatio)
-        self.thumb_label.setFixedSize(pixmap.width(), pixmap.height())
-        self.thumb_label.setPixmap(pixmap)
-        self.thumb_label.setMargin(20);                                                                                                                   
+        # self.thumb_label.setFixedSize(pixmap.width(), pixmap.height())
+        self.thumb_label.setFixedSize(VIDEO_MESSAGE_SIZE, VIDEO_MESSAGE_SIZE)
+        # self.thumb_label.setPixmap(pixmap)
+        self.thumb_label.setMargin(20);                                                                                        
         self.thumb_label.setScaledContents(True);   
 
         self.media_layout = QVBoxLayout(self)
@@ -88,6 +117,12 @@ class PhotoMessage(_CoreWidget):
         self.media_layout.addLayout(temp)
 
         self.layout().addLayout(self.media_layout)
+
+    def setup_pixmap(self):
+        pixmap = QPixmap(self.path_to_thumb)
+        # pixmap = pixmap.scaled(240, 120, Qt.KeepAspectRatio)
+        self.thumb_label.setFixedSize(pixmap.width(), pixmap.height())
+        self.thumb_label.setPixmap(pixmap)
 
     def setup_caption(self):
         if self.message.text:

@@ -6,7 +6,7 @@
 import asyncio
 from datetime import datetime
 import os
-from PySide6.QtCore import QUrl, Slot, Qt
+from PySide6.QtCore import QThread, QUrl, Signal, Slot, Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QHBoxLayout, QLabel
 from telethon.tl.patched import Message
@@ -21,6 +21,34 @@ from src.telegram_client.backend.client_init import client
 from src.telegram_client.frontend.gui.widgets.viewer.viewer import ViewerWidget, viewer, generate_viewer
 
 
+class DownloadVideo(QThread):
+    signal_to_set_video: Signal = Signal()
+
+    def __init__(self, 
+                 path_to_thumb,
+                 path_to_file,
+                 message,
+                 speed
+                 ) -> None:
+        super().__init__()
+        self.path_to_thumb, self.path_to_file, self.message, self.speed = path_to_thumb, path_to_file, message, speed
+
+    def run(self) -> None:
+        if not os.path.exists(self.path_to_thumb):
+            client.download_media(message=self.message,
+                                  path=self.path_to_thumb,
+                                  thumb=True)
+
+        self.signal_to_set_video.emit()
+
+        if not os.path.exists(self.path_to_file):
+            client.add_to_downloads(message=self.message,
+                                    path=self.path_to_file,
+                                    speed=self.speed)
+
+        self.signal_to_set_video.emit()
+
+
 class VideoMessage(_CoreWidget):
     user: User = None
     video_message: Message = None
@@ -31,6 +59,8 @@ class VideoMessage(_CoreWidget):
     thumb_label: QLabel = None
 
     viewer: ViewerWidget = None
+
+    download_video_thread: DownloadVideo = None
     
     def __init__(self, 
                  parent, 
@@ -49,9 +79,9 @@ class VideoMessage(_CoreWidget):
     def load_ui(self):
         self.set_layout()
 
+        self.setup_thumb()
         self.load_content()
 
-        self.setup_thumb()
         # self.setup_video_player()
 
     def load_content(self):
@@ -62,16 +92,15 @@ class VideoMessage(_CoreWidget):
         self.path_to_file_mp4 = path_to_file_without_ext + '.mp4'
         self.path_to_file_with_need_speed = path_to_file_without_ext + '___speed_coef__.mp4'
 
-        if not os.path.exists(self.path_to_file_thumb):
-
-            client.download_media(message=self.video_message,
-                                  path=self.path_to_file_thumb,
-                                  thumb=True)
-
-        if not os.path.exists(self.path_to_file_mp4):
-            client.add_to_downloads(message=self.video_message,
-                                    path=self.path_to_file_mp4,
-                                    speed=speed)
+        if not os.path.exists(self.path_to_file_thumb) or not os.path.exists(self.path_to_file_mp4):
+            self.download_video_thread = DownloadVideo(path_to_thumb=self.path_to_file_thumb,
+                                                       path_to_file=self.path_to_file_mp4,
+                                                       message=self.video_message,
+                                                       speed=speed)
+            self.download_video_thread.signal_to_set_video.connect(self.setup_pixmap)
+            self.download_video_thread.start()
+        else:
+            self.setup_pixmap()
 
     def setup_thumb(self):
         self.thumb_label = QLabel(self)
@@ -79,11 +108,13 @@ class VideoMessage(_CoreWidget):
         self.thumb_label.setFixedSize(VIDEO_MESSAGE_THUMB_SIZE, VIDEO_MESSAGE_THUMB_SIZE)
         self.thumb_label.setObjectName('thumb_video_label')
         self.thumb_label.setMargin(20);                                                                                                                   
-        self.thumb_label.setStyleSheet(f"border-image: url('{self.path_to_file_thumb}');")
         self.thumb_label.setScaledContents(True);   
         self.layout().addWidget(self.thumb_label)
         
         self.thumb_label.mousePressEvent = self.play_video
+
+    def setup_pixmap(self):
+        self.thumb_label.setStyleSheet(f"border-image: url('{self.path_to_file_thumb}');")
 
     def play_video(self, event):
         global viewer

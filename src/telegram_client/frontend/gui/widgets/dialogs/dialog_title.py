@@ -6,10 +6,11 @@ from datetime import datetime, timedelta
 from PySide6 import QtCore
 from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from src.services.logging.setup_logger import logger
 from telethon.tl.custom import dialog
 from telethon.tl.custom.dialog import Dialog as TTDialog
 from telethon.tl.patched import Message
-from telethon.tl.types import User
+from telethon.tl.types import Channel, User
 from src.services.frontend.gui.widgets.dialogs.dialog_cut import cut_text_for_dialogs
 from src.config import AMOUNT_SYMBOLS_FOR_CUTTING_MESSAGE_TEXT, AMOUNT_SYMBOLS_FOR_CUTTING_TITLE, AMOUNT_UNREAD_MARK, DIALOG_FONT_SIZE_TITLE, LENGTH_TITLE
 from src.telegram_client.frontend.gui._core_widget import _CoreWidget
@@ -42,6 +43,8 @@ class DialogTitle(_CoreWidget):
                  user: User
                  ) -> None:
         self.dialog = dialog
+        # :TODO: Handle arrived message in execute when it get from channel
+        logger.critical('Handle arrived message in execute when it get from channel')
         self.message = dialog.message
         self.user = user
         super().__init__(parent)
