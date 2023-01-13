@@ -39,7 +39,7 @@ class DownloadPhoto(QThread):
 
 class DownloadFewPhoto(QThread):
     signal_to_set_picture: Signal = Signal(str, str)        # return path to thumb and path to file
-    files_to_load: list[tuple[str, str, Message, QLabel]] = None
+    files_to_load: list[tuple[str, str, Message]] = None
 
     def __init__(self) -> None:
         super().__init__()
@@ -82,12 +82,15 @@ class PhotoMessage(_CoreWidget):
     download_thread: DownloadPhoto = None
     download_few_photo_thread: DownloadFewPhoto = None
 
+    addiditional_contents_with_label: dict[str, QLabel] = None
+
     def __init__(self, 
                  parent, 
                  user: User,
                  message: Message) -> None:
         self.user = user
         self.message = message
+        self.additional_contents_with_label = {}
         super().__init__(parent)
 
     def set_layout(self):
@@ -182,15 +185,15 @@ class PhotoMessage(_CoreWidget):
         path_to_thumb = path_to_file_without_ext + '.jpg'
         path_to_file = path_to_file_without_ext + '_full.jpg'
 
+        self.additional_contents_with_label[path_to_thumb] = label
+
         if not os.path.exists(path_to_thumb):
             self.download_few_photo_thread.files_to_load.append((path_to_thumb, 
                                                                  path_to_file,
-                                                                 message, 
-                                                                 label))
+                                                                 message))
         else:
             self.setup_additional_pixmap(path_to_thumb,
-                                         path_to_file,
-                                         label)
+                                         path_to_file)
 
     def add_new_media(self, layout: QHBoxLayout) -> QLabel:
         # create a patter for set new image in it in a future
@@ -209,11 +212,11 @@ class PhotoMessage(_CoreWidget):
     def setup_additional_pixmap(self,
                                 path_to_thumb: str,
                                 path_to_file: str,
-                                qlabel_ref: QLabel):
+                                ):
         pixmap = QPixmap(path_to_thumb)
         pixmap = pixmap.scaled(ADDITIONAL_PHOTO_WIDTH, 
                                ADDITIONAL_PHOTO_HEIGHT,
                                Qt.KeepAspectRatio)
 
-        qlabel_ref.setPixmap(pixmap)
+        self.additional_contents_with_label[path_to_thumb].setPixmap(pixmap)
 
