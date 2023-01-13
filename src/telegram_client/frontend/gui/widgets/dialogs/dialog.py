@@ -37,10 +37,12 @@ class Dialog(_CoreWidget):
                  parent, 
                  dialog: TTDialog,
                  user: User,
-                 current_dialog_status: bool = False,) -> None:
+                 current_dialog_status: bool = False,
+                 message: Message = None) -> None:
         self.dialog = dialog
         self.active_dialog = current_dialog_status
         self.user = user 
+        self.message = message
         super().__init__(parent)
     
     def set_layout(self):
@@ -81,7 +83,8 @@ class Dialog(_CoreWidget):
     def add_dialog_title(self):
         self.dialog_title = DialogTitle(self, 
                                         dialog=self.dialog,
-                                        user=self.user)
+                                        user=self.user,
+                                        message=self.message)
         self.inner_layout.addWidget(self.dialog_title)
 
     def add_dialog_text(self):

@@ -12,7 +12,7 @@ from PySide6.QtCore import Qt
 from telethon.tl.custom import dialog 
 from telethon.tl.custom.dialog import Dialog as TTDialog
 from telethon.tl.patched import Message
-from telethon.tl.types import User
+from telethon.tl.types import Channel, User
 from src.database.keymaps import Keymaps
 from src.services.database.models.keymaps import get_keybinds
 from src.config import ACTIVE_DIALOG_NAME, AMOUNT_DIALOGS_BEFORE_SCROLLABLE_DIALOG, AMOUNT_DIALOGS_IN_HEIGHT, DIALOG_ACTIVE_NAME, DIALOG_NAME, DIALOG_WIDGET_HEIGHT, MAIN_WIDGET_HEIGHT, DIALOG_SCROLL_WIDTH, DIALOG_WIDGET_WIDTH
@@ -71,11 +71,20 @@ class DialogList(_CoreWidget,
     def dialog_update_handler(self,
                               dialog: User,
                               message: Message,
-                              dialog_id: int):
+                              dialog_id: int) -> bool:
+        """
+            Update gui with new message
+        """
+        if isinstance(dialog, Channel) and message.chat_id not in self.gui_dialogs_with_id:
+            # if this message from forum or other, it's not need me
+            return False
+
         if gui_dialog := self.gui_dialogs_with_id.get(dialog_id):
             gui_dialog.update_data(message=message)
 
-        self.update_dialog_place(new_dialog_user=dialog)
+        self.update_dialog_place(new_dialog_user=dialog,
+                                 message=message)
+        return True
 
     def load_dialogs_in_ui(self):
         self.load_dialogs_from_telegram()
@@ -112,7 +121,9 @@ class DialogList(_CoreWidget,
 
         self.gui_dialogs.clear()
 
-    def update_dialog_place(self, new_dialog_user: User):
+    def update_dialog_place(self, 
+                            new_dialog_user: User,
+                            message: Message):
         if new_dialog_user.id in self.pinned_dialogs:
             return
         
@@ -129,7 +140,8 @@ class DialogList(_CoreWidget,
             gui_dialog = Dialog(self, 
                                 new_dialog_user, 
                                 current_dialog_status=False,
-                                user=new_dialog_user)
+                                user=new_dialog_user,
+                                message=message)
         
         self.gui_dialogs.insert(dialog_index_after_pinned, gui_dialog)
 

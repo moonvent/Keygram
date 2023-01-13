@@ -41,6 +41,10 @@ class VimModes:
             self.switch_to_command_mode()
             self.make_cursor_visible()
 
+    def switch_before_change_pan(self):
+        self.setReadOnly(True)
+        self.switch_to_command_mode()
+
     def make_cursor_visible(self):
         """
             Make cursor visible after entry in command mode from other modes

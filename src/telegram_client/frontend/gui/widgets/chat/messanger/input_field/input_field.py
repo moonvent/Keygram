@@ -50,14 +50,15 @@ class InputField(_CoreWidget,
                             text)
 
     def activate(self):
-        self.main_window.active_pan = self
         self.vim_editor.setFocus()
         self.vim_editor.setReadOnly(False)
-        self.vim_editor.insert_mode = True
+        self.vim_editor.switch_to_insert_mode()
 
     def activate_command_mode(self):
-        self.vim_editor.command_mode = True
-        self.vim_editor.insert_mode = False
+        self.vim_editor.switch_to_command_mode_from_insert()
+
+    def close_before_switch_pan(self):
+        self.vim_editor.switch_before_change_pan()
 
     @property
     def dialog(self):
@@ -65,7 +66,7 @@ class InputField(_CoreWidget,
 
     @dialog.setter
     def dialog(self, value: Dialog):
-        self.vim_editor.setReadOnly(False)
+        # self.vim_editor.setReadOnly(False)
         self.save_draft()
         self._dialog = value
         self.add_draft_to_textedit(new_dialog=value)
@@ -92,4 +93,8 @@ class InputField(_CoreWidget,
 
     def minimize_field(self):
         self.vim_editor.setReadOnly(True)
+
+    def disable_vim(self):
+        # self.vim_editor.set
+        ...
 

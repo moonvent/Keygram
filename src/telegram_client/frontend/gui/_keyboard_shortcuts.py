@@ -59,7 +59,9 @@ class _KeyboardShortcuts:
         def wrapper(self, *args, **kwargs):
 
             pan = func(self, *args, **kwargs)
-            pan.main_window.active_pan = pan
+
+            if pan:
+                pan.main_window.active_pan = pan
         
         return wrapper
 

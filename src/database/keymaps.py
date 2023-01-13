@@ -49,3 +49,5 @@ class Keymaps(IntEnum):
     END_OF_STRING = 29
     START_OF_STRING = 30
 
+    INSERT_MODE_IN_INPUT_FIELD = 31
+

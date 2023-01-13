@@ -199,8 +199,8 @@ class CustomTelegramClient(DownloadMethods,
         args = dict(dialog=updated_chat,
                     message=event.message,
                     dialog_id=event.chat_id)
-        self.dialog_update_handler(**args)
-        self.new_messages.append(tuple(args.values()))
+        if self.dialog_update_handler(**args):
+            self.new_messages.append(tuple(args.values()))
 
     @async_function()
     async def send_message(self, 

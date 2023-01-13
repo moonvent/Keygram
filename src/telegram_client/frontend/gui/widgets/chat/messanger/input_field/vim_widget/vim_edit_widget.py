@@ -37,6 +37,7 @@ class VimWidget(QTextEdit,
         self.setObjectName('input_field')
         self.setFixedHeight(INPUT_FIELD_HEIGHT)
         self.installEventFilter(self)
+        # self.removeEventFilter(self)
         self.set_writable_font()
         self.setup_keybind()
         # self.set_keyboard_shortcuts() # doesn't work here
@@ -59,6 +60,7 @@ class VimWidget(QTextEdit,
                     watched: QObject, 
                     event: QEvent) -> bool:
 
+        # if self.parent().active and event.type() == QEvent.KeyPress:
         if self.hasFocus() and event.type() == QEvent.KeyPress:
             if self.handle_keybind(event=event):
                 return True

@@ -38,16 +38,21 @@ class MainWindow(_CoreWidget,
     @active_pan.setter
     def active_pan(self, new_active_pan):
 
-        if self._active_pan and (self._active_pan != self.chat.input_field):
+        # if self._active_pan and (self._active_pan != self.chat.input_field):
             # second condition work if already in input field and switch to edit mode in vim
-            self.pan_before_insert = self._active_pan
-            self._active_pan.change_pan_shortcuts_state(enable=False)
+            # self.pan_before_insert = self._active_pan
+            # self._active_pan.change_pan_shortcuts_state(enable=False)
 
         # if self._active_pan:
         #     self.change_object_name_for_styling(custom_object=self._active_pan,
         #                                         state='not_active')
+        
+        if self._active_pan:
+            self._active_pan.change_pan_shortcuts_state(enable=False)
 
         self._active_pan = new_active_pan
+
+        self.chat.input_field.disable_vim()         # after switching every dialog vim has focus, it's not good
 
         # self.change_object_name_for_styling(custom_object=self._active_pan,
         #                                     state='active')
@@ -121,25 +126,36 @@ class MainWindow(_CoreWidget,
 
         self.chat.input_field.left_pan = self.dialogs_list
 
+        # primary activa pan
         self.active_pan = self.dialogs_list
 
     def keyPressEvent(self, 
                       event: QKeyEvent) -> None:
+        """
+            Global handler key press event
+        """
 
         match event.key():
             case Qt.Key_Escape:
 
-                if self.command_mode and self.pan_before_insert != self.active_pan:
+                # if self.command_mode and self.pan_before_insert != self.active_pan:
                     # if press double escape, revert current pan to pan before current pan
 
                     # if self.active_pan == self.chat.input_field:
                     #     self.chat.input_field.line_edit.clearFocus()
 
                     # if need, add in prop reset selectable
-                    self.active_pan = self.pan_before_insert
+                    # self.active_pan = self.pan_before_insert
 
                 if self.active_pan == self.chat.input_field:
-                    self.active_pan.activate_command_mode()
+
+                    if self.chat.input_field.vim_editor.command_mode:
+                        self.chat.input_field.close_before_switch_pan()
+                        self.active_pan = self.dialogs_list
+                        return True
+
+                    else:
+                        self.active_pan.activate_command_mode()
 
                 self.switch_to_command_mode()
 
@@ -154,9 +170,10 @@ class MainWindow(_CoreWidget,
                 #     self.switch_to_visual_mode()
                 # elif self.visual_mode:
                 #     self.switch_to_command_mode()
-                self.switch_to_insert_mode()
-                self.save_pan_before_input()
-                self.chat.input_field.activate()
+                # self.switch_to_insert_mode()
+                # self.save_pan_before_input()
+                # self.chat.input_field.activate()
+                ...
 
         return super().keyPressEvent(event)
 

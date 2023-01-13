@@ -40,12 +40,18 @@ class DialogTitle(_CoreWidget):
     def __init__(self, 
                  parent, 
                  dialog: TTDialog,
-                 user: User
+                 user: User,
+                 message: Message
                  ) -> None:
         self.dialog = dialog
         # :TODO: Handle arrived message in execute when it get from channel
         logger.critical('Handle arrived message in execute when it get from channel')
-        self.message = dialog.message
+
+        if not hasattr(dialog, 'message'):
+            self.message = message
+        else:
+            self.message = dialog.message
+
         self.user = user
         super().__init__(parent)
 
@@ -91,7 +97,7 @@ class DialogTitle(_CoreWidget):
             self.dialog_type = QLabel(self)
             self.dialog_type.setFont(self.get_dialog_title_font())
             self.layout().addWidget(self.dialog_type)
-
+        
         if self.dialog.is_user:
             text_code = 'user'
 
@@ -155,14 +161,14 @@ class DialogTitle(_CoreWidget):
         if self.user.id == self.dialog.id:
             return
 
-        if self.dialog.message.sender_id == self.user.id:
+        if self.message.sender_id == self.user.id:
 
             if not self.seen_status:
                 self.seen_status = QLabel(self)
                 self.seen_status.setFont(self.get_dialog_title_font())
                 self.layout().addWidget(self.seen_status)
 
-            if self.dialog.message.id <= self.dialog.dialog.read_outbox_max_id:
+            if self.message.id <= self.dialog.dialog.read_outbox_max_id:
                 # if message read by recipient
                 text_code = 'seen_status'
 
